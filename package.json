@@ -1,0 +1,12 @@
+{
+	"name": "booklist",
+	"version": "0.0.1",
+	"dependencies": {
+		"xml2js": "0.1.9",
+		"express": "2.3.10",
+		"mongoose": "1.0",
+		"coffee-script": "1.1.1",
+		"jade": "0.12.1"
+	}
+	
+}
