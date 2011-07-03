@@ -17,9 +17,9 @@ var Goodreads = new (require('./controllers/goodreads.js').Goodreads);   // Good
 
 
 // Initialize models
-// var Users = new (require('./models/user').Users);
+var Users = new (require('./models/users').Users);
 var Lists = new (require('./models/lists').Lists);
-// var Books = new (require('./models/books').Books);
+var Books = new (require('./models/books').Books);
 
 // Start route handling
 
@@ -38,9 +38,21 @@ app.get('/', function(req, res){
 /* GOODREADS */
 // Get list by ID
 app.get('/goodreads/:userID', function(req, res) {
+    // Get a user's lists
+    // Add lists to Mongo
+    // Display lists
+    
 	Goodreads.getLists(req.params.userID, function(json) {
-        res.send(json);
-		// res.render('users.jade', { json: json, action: action });
+	    if(json)
+	    {
+	        // Received valid return from Goodreads
+	        Users.findByID(req.params.userID, function(json) {
+                res.send();
+        	});
+	    }
+
+	    
+        // res.render('lists.jade', { json: json });
 	});
 });
 

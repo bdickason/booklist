@@ -47,8 +47,7 @@ function getRequest(options, callback)
 	  res.on('end', function(e) {
              console.log("reached the end");
              parser.parseString(tmp);
-             // callback(tmp);
-
+             // callback(tmp); -- don't callback because it's delivered in XML
          });
          
       parser.on('end', function(result) {
