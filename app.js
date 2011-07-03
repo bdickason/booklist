@@ -47,70 +47,16 @@ app.get('/', function(req, res){
 
 /* GOODREADS */
 
-// OAuth options
-
-function consumer() {
-    return new oauth.OAuth(
-        "http://goodreads.com/oauth/request_token",
-        "http://goodreads.com/oauth/access_token",
-        cfg.GOODREADS_KEY,
-        cfg.GOODREADS_SECRET,
-        "1.0",
-        "http://localhost:3000/goodreads/callback",
-        "HMAC-SHA1");
-}
-
 app.get('/goodreads/connect', function(req, res) {
-    
- //   Goodreads.requestToken(callback, req, res);
-    
-    consumer().getOAuthRequestToken(function(error, oauthToken, oauthTokenSecret, results) {
-          if (error) {
-              console.log(consumer());
-              res.send("Error getting OAuth request token : " + JSON.stringify(error), 500);
-          }
-          else {
-              req.session.oauthRequestToken = oauthToken;
-              req.session.oauthRequestTokenSecret = oauthTokenSecret;
-              
-              console.log("Redirecting to: https://goodreads.com/oauth/authorize?oauth_token="+req.session.oauthRequestToken+"&oauth_callback="+consumer()._authorize_callback);
-
-              res.redirect("https://goodreads.com/oauth/authorize?oauth_token="+req.session.oauthRequestToken+"&oauth_callback="+consumer()._authorize_callback);
-              
-
-          }
-    });
-    
+    var callback = "";
+    Goodreads.requestToken(callback, req, res);
 });
 
 app.get('/goodreads/callback', function(req, res) {
    // Handle goodreads callback
    // Redirect to /goodreads 
-   
-//   Goodreads.callback(callback, req, res);
-   
-    console.log(">>"+req.session.oauthRequestToken+"\n");
-    console.log(">>"+req.session.oauthRequestTokenSecret+"\n");
-    console.log(">>"+req.query.oauth_verifier+"\n");
-    consumer().getOAuthAccessToken(req.session.oauthRequestToken, req.session.oauthRequestTokenSecret, req.query.oauth_verifier, function(error, oauthAccessToken, oauthAccessTokenSecret, results) {
-      if (error) {
-        res.send("Error getting OAuth access token : " + sys.inspect(error) + "["+oauthAccessToken+"]"+ "["+oauthAccessTokenSecret+"]"+ "["+sys.inspect(results)+"]", 500);
-      } else {
-        req.session.oauthAccessToken = oauthAccessToken;
-        req.session.oauthAccessTokenSecret = oauthAccessTokenSecret;
-        // Right here is where we would write out some nice user stuff
-        consumer().get("http://www.goodreads.com/api/auth_user", req.session.oauthAccessToken, req.session.oauthAccessTokenSecret, function (error, data, response) {
-          if (error) {
-            res.send("Error getting user ID : " + sys.inspect(error), 500);
-          } else {
-              console.log(data);
-//            req.session.goodreadsID = data["s"];    
-            res.send('You are signed in: ' + data)
-          }  
-        });  
-      }
-    });
-    
+   var callback = "";
+      Goodreads.callback(callback, req, res);    
 });
 
 // Get list by ID
