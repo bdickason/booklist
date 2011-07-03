@@ -17,9 +17,9 @@ var Goodreads = new (require('./controllers/goodreads.js').Goodreads);   // Good
 
 
 // Initialize models
-var Users = new (require('./models/users').Users);
-var Lists = new (require('./models/lists').Lists);
-var Books = new (require('./models/books').Books);
+var UsersModel = new (require('./models/users').Users);
+var ListsModel = new (require('./models/lists').Lists);
+var BooksModel = new (require('./models/books').Books);
 
 // Start route handling
 
