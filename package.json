@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"dependencies": {
 		"xml2js": "0.1.9",
+		"oauth": "0.9.2",
 		"express": "2.3.10",
 		"mongoose": "1.0",
 		"coffee-script": "1.1.1",
