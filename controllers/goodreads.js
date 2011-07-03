@@ -14,6 +14,12 @@ var options = {
   method: 'GET'
 };
 
+
+Goodreads.prototype.auth = function (callback) {
+    
+  
+}
+
 // Grab lists from a user's shelf
 Goodreads.prototype.getLists = function (id, callback) {
 
