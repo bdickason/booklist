@@ -1,11 +1,15 @@
 // Goodreads - Handles all connectivity to Goodreads API
+// API Docs: http://www.goodreads.com/api
 
 var http = require('http');
 var xml2js = require('xml2js');
 var oauth = require('oauth');
 var cfg = require('../config/config.js');    // contains API keys, etc.
+var redis = require('redis-client');
 
 Goodreads = function(){};
+
+/* CONFIG */
 
 // Default JSON options
 var options = {
@@ -26,6 +30,36 @@ function consumer() {
         "http://localhost:3000/goodreads/callback",
         "HMAC-SHA1");
 }
+
+
+/* Bookshelves */
+
+// Get all shelves for a given user
+Goodreads.prototype.getShelves = function (userId, callback, req, res) {
+
+    var _options = clone(options);
+
+    // Provide path to the API
+    _options.path = "/shelf/list.xml?user_id=" + userId + "&key=" + _options.key;
+    
+    console.log(_options.path);
+    getRequest(_options, callback);
+}
+
+// Get a specific list by ID
+Goodreads.prototype.getSingleList = function (userId, listId, callback, req, res) {
+
+    var _options = clone(options);
+
+    // Provide path to the API
+    _options.path = "http://www.goodreads.com/review/list/" + userId + ".xml?key=" + _options.key + "&sort=rating&per_page=200&shelf="+listId;
+    
+    console.log(_options.path);
+    getRequest(_options, callback);
+}
+
+
+/* OAUTH */
 
 Goodreads.prototype.requestToken = function (callback, req, res) {
     consumer().getOAuthRequestToken(function(error, oauthToken, oauthTokenSecret, results) {
@@ -55,48 +89,37 @@ Goodreads.prototype.callback = function (callback, req, res) {
       if (error) {
         res.send("Error getting OAuth access token : " + sys.inspect(error) + "["+oauthAccessToken+"]"+ "["+oauthAccessTokenSecret+"]"+ "["+sys.inspect(results)+"]", 500);
       } else {
-        req.session.oauthAccessToken = oauthAccessToken;
-        req.session.oauthAccessTokenSecret = oauthAccessTokenSecret;
+        req.session.goodreads_accessToken = oauthAccessToken;
+        req.session.goodreads_secret = oauthAccessTokenSecret;
         // Right here is where we would write out some nice user stuff
-        consumer().get("http://www.goodreads.com/api/auth_user", req.session.oauthAccessToken, req.session.oauthAccessTokenSecret, function (error, data, response) {
+        consumer().get("http://www.goodreads.com/api/auth_user", req.session.goodreads_accessToken, req.session.goodreads_secret, function (error, data, response) {
           if (error) {
             res.send("Error getting user ID : " + sys.inspect(error), 500);
           } else {
               parser.parseString(data);
-
-//            req.session.goodreadsID = data["s"];
           }  
         });  
       }
     });
     
     parser.on('end', function(result) {
+    
       console.log(result);
-      req.session.user_name = result.user.name;
-      req.session.goodreadsID = result.user.id;
+      req.session.goodreads_name = result.user.name;    // Grab Goodreads name in case we don't have it
+      req.session.goodreads_id = result.user['@'].id;   // Grab Goodreads user ID in case we don't have it
+      req.session.goodreads_auth = 1;                   // User is Auth'd with goodreads! Woohoo! :)
       
-      res.send('You are signed in: as ' + result.user.name);
-
+      console.log(req.session.user_name + " signed in with user ID: " + req.session.goodreadsID + "\n");
+      
+      res.redirect('/');
     });
 }
 
-// Grab lists from a user's shelf
-Goodreads.prototype.getLists = function (id, callback) {
-
-    var _options = clone(options);
-
-    // Provide path to the API
-    _options.path = "/review/list/" + id + ".xml?key=" + _options.key;
-    
-    console.log(_options.path);
-    getRequest(_options, callback);
-    
-//    callback = JSON.parse(callback);
-}
-
-
 function getRequest(options, callback)
 {
+    // First check if object is in cache and call it back
+    
+    // Otherwise go grab it! 
     var tmp = "";
 	var _req = http.request(options, function(res) {
 	  console.log('STATUS: ' + res.statusCode);
@@ -106,7 +129,7 @@ function getRequest(options, callback)
       var parser = new xml2js.Parser();
 	  
 	  res.on('data', function (chunk) {
-		console.log(tmp);
+//		console.log(tmp);
 		tmp += chunk;
 	  });
 	  
@@ -118,7 +141,7 @@ function getRequest(options, callback)
          
       parser.on('end', function(result) {
           console.log(result);
-         callback(result); 
+          callback(result); 
       });
       
   	});

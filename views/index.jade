@@ -1,0 +1,6 @@
+h1 Your Lists
+ul
+- each shelf in json.shelves.user_shelf
+    li.shelf
+        a(href='/goodreads/list/#{shelf.name}') #{shelf.name} 
+        #{shelf.book_count['#']}

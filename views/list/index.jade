@@ -1,0 +1,6 @@
+a(href='/') Back to Your Lists
+.books
+    - each book in json.books.book
+        .book
+            img(src='#{book.image_url}') 
+            #{book.title}

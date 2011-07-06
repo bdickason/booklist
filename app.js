@@ -2,6 +2,7 @@ var http = require('http');
 var express = require('express');
 var app = express.createServer();
 var oauth = require('oauth');
+var RedisStore = require('connect-redis')(express);
 var sys = require('sys');
 var cfg = require('./config/config.js');    // contains API keys, etc.
 
@@ -11,7 +12,7 @@ app.configure(function(){
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(express.cookieParser());
-    app.use(express.session({ secret: "testing"}));
+    app.use(express.session({ secret: cfg.REDIS_SECRET, store: new RedisStore}));
     app.use(app.router); 
 });
 
@@ -34,16 +35,40 @@ var BooksModel = new (require('./models/books').Books);
 // Start route handling
 
 // Home Page
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
+    
+    console.log(req.session);
+    if(req.session.goodreads_auth == 1) {
+        // User is authenticated
+        
+        // Get my shelves
+        Goodreads.getShelves(req.session.goodreads_id, function(json) {
+    	    if(json)
+    	    {
+    	        // Received valid return from Goodreads
+//    	        res.send(json.shelves.user_shelf);
+                    res.render("index.jade", { json: json });
+    	    }
 
-// Check for OAuth
-/*	if(!req.session.oauth_access_token) {
-		res.redirect("/goodreads_login");
-	}
-	else {
-		res.redirect("/lists");
-	} */
+
+            // res.render('lists.jade', { json: json });
+    	});
+//        res.send("You are authenticated, woohoo!! <A HREF='/logout'>Click here</A> to logout");
+    }
+    else
+    {
+        // Prompt for login
+        res.send("You are not logged in. <A HREF='/goodreads/connect'>Click here</A> to login");
+    }
 });
+
+app.get('/logout', function(req, res) {
+    console.log("--- LOGOUT ---")
+    console.log(req.session);
+    req.session.destroy();
+    res.redirect("/");
+});
+
 
 /* GOODREADS */
 
@@ -59,7 +84,7 @@ app.get('/goodreads/callback', function(req, res) {
       Goodreads.callback(callback, req, res);    
 });
 
-// Get list by ID
+// Get Goodreads lists by User ID
 app.get('/goodreads/:userID', function(req, res) {
     // Get a user's lists
     // Add lists to Mongo
@@ -76,6 +101,18 @@ app.get('/goodreads/:userID', function(req, res) {
 
 	    
         // res.render('lists.jade', { json: json });
+	});
+});
+
+app.get('/goodreads/list/:listName', function(req, res) {
+    // Get a specific list
+        
+	Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
+	    if(json)
+	    {
+	        // Received valid return from Goodreads
+            res.render("list.jade", { json: json });
+	    }
 	});
 });
 

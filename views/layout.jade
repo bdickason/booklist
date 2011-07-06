@@ -1,7 +1,11 @@
 !!! 5
 html(lang="en")
-	head
-		title Booklist
-	body
-		#container
-			!= body
+    head
+    title Booklist
+    body
+        #global_nav
+            a(href='/') Home 
+            /
+            a(href='/logout') Logout 
+            .subnav
+                != body
