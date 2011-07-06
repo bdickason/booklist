@@ -127,8 +127,13 @@ Goodreads.prototype.callback = function (callback, req, res) {
 function checkCache(options, callback)
 {
     // First check if object is in cache and call it back
+
+	console.log(options);
     
     redis_client.get(options.path, function (err, reply) { // get entire file
+	
+		console.log("Got to Redis");
+		
         if (err) {
             console.log("REDIS error: " + err);
         } else {
@@ -144,7 +149,7 @@ function checkCache(options, callback)
                 getRequest(options, callback);
         	}
         }
-        redis_client.quit();                
+        // redis_client.quit();                
     });
 }
 
@@ -172,8 +177,8 @@ function getRequest(options, callback)
 
       parser.on('end', function(result) {
             redis_client.setex(options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)); // Cache result for a while
-            
             console.log(result);
+
             callback(result); 
       });
 
