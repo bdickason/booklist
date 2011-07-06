@@ -12,7 +12,7 @@ app.configure(function(){
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(express.cookieParser());
-    app.use(express.session({ secret: cfg.REDIS_SECRET, store: new RedisStore}));
+    app.use(express.session({ secret: "testing", store: new RedisStore}));
     app.use(app.router); 
 });
 
@@ -46,14 +46,9 @@ app.get('/', function(req, res) {
     	    if(json)
     	    {
     	        // Received valid return from Goodreads
-//    	        res.send(json.shelves.user_shelf);
                     res.render("index.jade", { json: json });
-    	    }
-
-
-            // res.render('lists.jade', { json: json });
+    	    } 
     	});
-//        res.send("You are authenticated, woohoo!! <A HREF='/logout'>Click here</A> to logout");
     }
     else
     {
@@ -84,36 +79,15 @@ app.get('/goodreads/callback', function(req, res) {
       Goodreads.callback(callback, req, res);    
 });
 
-// Get Goodreads lists by User ID
-app.get('/goodreads/:userID', function(req, res) {
-    // Get a user's lists
-    // Add lists to Mongo
-    // Display lists
-    
-	Goodreads.getLists(req.params.userID, function(json) {
-	    if(json)
-	    {
-	        // Received valid return from Goodreads
-	        UsersModel.findByID(req.params.userID, function(json) {
-                res.send();
-        	});
-	    }
-
-	    
-        // res.render('lists.jade', { json: json });
-	});
-});
-
 app.get('/goodreads/list/:listName', function(req, res) {
     // Get a specific list
-        
-	Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
-	    if(json)
-	    {
+	Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {	    
+	    if(json) {
 	        // Received valid return from Goodreads
             res.render("list.jade", { json: json });
 	    }
-	});
+	}); 
 });
+
 
 app.listen(3000);

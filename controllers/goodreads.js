@@ -5,7 +5,7 @@ var http = require('http');
 var xml2js = require('xml2js');
 var oauth = require('oauth');
 var cfg = require('../config/config.js');    // contains API keys, etc.
-var redis = require('redis-client');
+var redis = require('redis');
 
 Goodreads = function(){};
 
@@ -31,11 +31,17 @@ function consumer() {
         "HMAC-SHA1");
 }
 
+// Start up redis to cache API stuff
+redis_client = redis.createClient(cfg.REDIS_PORT, cfg.REDIS_HOSTNAME);
+
+redis_client.on("error", function(err) {
+    console.log("REDIS Error: " + err);
+});
 
 /* Bookshelves */
 
 // Get all shelves for a given user
-Goodreads.prototype.getShelves = function (userId, callback, req, res) {
+Goodreads.prototype.getShelves = function (userId, callback) {
 
     var _options = clone(options);
 
@@ -43,11 +49,13 @@ Goodreads.prototype.getShelves = function (userId, callback, req, res) {
     _options.path = "/shelf/list.xml?user_id=" + userId + "&key=" + _options.key;
     
     console.log(_options.path);
-    getRequest(_options, callback);
+    checkCache(_options, callback);
 }
 
 // Get a specific list by ID
-Goodreads.prototype.getSingleList = function (userId, listId, callback, req, res) {
+Goodreads.prototype.getSingleList = function (userId, listId, callback) {
+
+    console.log("Getting list " + userId);
 
     var _options = clone(options);
 
@@ -55,7 +63,7 @@ Goodreads.prototype.getSingleList = function (userId, listId, callback, req, res
     _options.path = "http://www.goodreads.com/review/list/" + userId + ".xml?key=" + _options.key + "&sort=rating&per_page=200&shelf="+listId;
     
     console.log(_options.path);
-    getRequest(_options, callback);
+    checkCache(_options, callback);
 }
 
 
@@ -105,57 +113,84 @@ Goodreads.prototype.callback = function (callback, req, res) {
     parser.on('end', function(result) {
     
       console.log(result);
+      
       req.session.goodreads_name = result.user.name;    // Grab Goodreads name in case we don't have it
       req.session.goodreads_id = result.user['@'].id;   // Grab Goodreads user ID in case we don't have it
       req.session.goodreads_auth = 1;                   // User is Auth'd with goodreads! Woohoo! :)
       
-      console.log(req.session.user_name + " signed in with user ID: " + req.session.goodreadsID + "\n");
+      console.log(req.session.goodreads_name + " signed in with user ID: " + req.session.goodreads_id + "\n");
       
       res.redirect('/');
     });
 }
 
+function checkCache(options, callback)
+{
+    // First check if object is in cache and call it back
+    
+    redis_client.get(options.path, function (err, reply) { // get entire file
+        if (err) {
+            console.log("REDIS error: " + err);
+        } else {
+            if(reply) {
+                console.log("REDIS readin' the cache!");    // Nice! We made this call recently :)
+                callback(JSON.parse(reply));
+
+            }
+            else {
+                // Crap! Go grab it!
+                console.log("Oops not in cache!");
+
+                getRequest(options, callback);
+        	}
+        }
+        redis_client.quit();                
+    });
+}
+
+
 function getRequest(options, callback)
 {
     // First check if object is in cache and call it back
     
-    // Otherwise go grab it! 
     var tmp = "";
 	var _req = http.request(options, function(res) {
-	  console.log('STATUS: ' + res.statusCode);
-	  console.log('HEADERS: ' + JSON.stringify(res.headers));
+	    console.log('STATUS: ' + res.statusCode);
+	    console.log('HEADERS: ' + JSON.stringify(res.headers));
 	  res.setEncoding('utf8');
-	  
+
       var parser = new xml2js.Parser();
-	  
+
 	  res.on('data', function (chunk) {
-//		console.log(tmp);
 		tmp += chunk;
 	  });
-	  
+
 	  res.on('end', function(e) {
-             console.log("reached the end");
              parser.parseString(tmp);
              // callback(tmp); -- don't callback because it's delivered in XML
          });
-         
+
       parser.on('end', function(result) {
-          console.log(result);
-          callback(result); 
+            redis_client.setex(options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)); // Cache result for a while
+            
+            console.log(result);
+            callback(result); 
       });
-      
+
   	});
 
 	_req.on('error', function(e) {
 	  console.log('problem with request: ' + e.message);
 	});
 
-   
-    
+
+
 	_req.write('data\n');
 	_req.write('data\n');
 	_req.end();
+
 }
+
 
 exports.Goodreads = Goodreads;
 
