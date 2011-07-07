@@ -111,9 +111,6 @@ Goodreads.prototype.callback = function (callback, req, res) {
     });
     
     parser.on('end', function(result) {
-    
-      console.log(result);
-      
       req.session.goodreads_name = result.user.name;    // Grab Goodreads name in case we don't have it
       req.session.goodreads_id = result.user['@'].id;   // Grab Goodreads user ID in case we don't have it
       req.session.goodreads_auth = 1;                   // User is Auth'd with goodreads! Woohoo! :)
@@ -127,13 +124,8 @@ Goodreads.prototype.callback = function (callback, req, res) {
 function checkCache(options, callback)
 {
     // First check if object is in cache and call it back
-
-	console.log(options);
     
-    redis_client.get(options.path, function (err, reply) { // get entire file
-	
-		console.log("Got to Redis");
-		
+    redis_client.get(options.path, function (err, reply) { // get entire file		
         if (err) {
             console.log("REDIS error: " + err);
         } else {
@@ -145,8 +137,9 @@ function checkCache(options, callback)
             else {
                 // Crap! Go grab it!
                 console.log("Oops not in cache!");
-
-                getRequest(options, callback);
+				
+				
+               getRequest(options, callback);
         	}
         }
         // redis_client.quit();                
@@ -160,14 +153,15 @@ function getRequest(options, callback)
     
     var tmp = "";
 	var _req = http.request(options, function(res) {
-	    console.log('STATUS: ' + res.statusCode);
-	    console.log('HEADERS: ' + JSON.stringify(res.headers));
+	  //  console.log('STATUS: ' + res.statusCode);
+	  //  console.log('HEADERS: ' + JSON.stringify(res.headers));
 	  res.setEncoding('utf8');
 
       var parser = new xml2js.Parser();
 
 	  res.on('data', function (chunk) {
 		tmp += chunk;
+		console.log("GOT A CHUNK!!!");
 	  });
 
 	  res.on('end', function(e) {
@@ -177,8 +171,9 @@ function getRequest(options, callback)
 
       parser.on('end', function(result) {
             redis_client.setex(options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)); // Cache result for a while
-            console.log(result);
-
+          	// console.log(result);
+			console.log("GOT A PARSE END!!!");
+			// redis_client.quit();
             callback(result); 
       });
 

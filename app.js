@@ -84,7 +84,10 @@ app.get('/goodreads/list/:listName', function(req, res) {
 	Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {	    
 	    if(json) {
 	        // Received valid return from Goodreads
+	
+			sys.puts('Counter from ' + req.url);
             res.render("list.jade", { json: json });
+			// res.send(json);
 	    }
 	}); 
 });
