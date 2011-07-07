@@ -1,6 +1,11 @@
 a(href='/') Back to Your Lists
 .books
+- if (json.books.book.length)
     - each book in json.books.book
-        .book
-            img(src='#{book.image_url}') 
-            #{book.title}
+       .book
+           img(src='#{book.image_url}') 
+           #{book.title}
+- else
+     .book
+           img(src='#{json.books.book.image_url}') 
+           #{json.books.book.title}

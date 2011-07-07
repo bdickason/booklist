@@ -60,7 +60,7 @@ Goodreads.prototype.getSingleList = function (userId, listId, callback) {
     var _options = clone(options);
 
     // Provide path to the API
-    _options.path = "http://www.goodreads.com/review/list/" + userId + ".xml?key=" + _options.key + "&sort=rating&per_page=200&shelf="+listId;
+    _options.path = "http://www.goodreads.com/review/list/" + userId + ".xml?key=" + _options.key + "&sort=rating&per_page=5&shelf="+listId;
     
     console.log(_options.path);
     checkCache(_options, callback);
@@ -151,6 +151,7 @@ function getRequest(options, callback)
 {
     // First check if object is in cache and call it back
     
+    console.log(options);
     var tmp = "";
 	var _req = http.request(options, function(res) {
 	  //  console.log('STATUS: ' + res.statusCode);
@@ -161,7 +162,6 @@ function getRequest(options, callback)
 
 	  res.on('data', function (chunk) {
 		tmp += chunk;
-		console.log("GOT A CHUNK!!!");
 	  });
 
 	  res.on('end', function(e) {
@@ -171,11 +171,8 @@ function getRequest(options, callback)
 
       parser.on('end', function(result) {
             redis_client.setex(options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)); // Cache result for a while
-          	// console.log(result);
-			console.log("GOT A PARSE END!!!");
-			// redis_client.quit();
             callback(result); 
-      });
+      }); 
 
   	});
 
