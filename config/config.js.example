@@ -1,4 +1,0 @@
-exports.GOODREADS_KEY = "";		// Your Goodreads API Key
-exports.GOODREADS_SECRET = "";	// Your Goodreads API Secret
-
-exports.REDIS_CACHE_TIME = "90";

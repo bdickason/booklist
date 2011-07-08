@@ -12,7 +12,7 @@ app.configure(function(){
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(express.cookieParser());
-    app.use(express.session({ secret: "testing", store: new RedisStore}));
+    app.use(express.session({ secret: cfg.SESSION_SECRET, store: new RedisStore}));
     app.use(app.router); 
 });
 
