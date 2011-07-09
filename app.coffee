@@ -54,6 +54,7 @@ app.get '/logout', (req, res) ->
 # Goodreads
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
+
   Goodreads.requestToken callback, req, res
   
 app.get '/goodreads/callback', (req, res) ->
