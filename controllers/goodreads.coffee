@@ -5,6 +5,7 @@ http = require 'http'
 xml2js = require 'xml2js'
 oauth = require 'oauth'
 redis = require 'redis'
+sys = require 'sys'
 cfg = require '../config/config.js' # contains API keys, etc.
 
 exports.Goodreads = class Goodreads
@@ -52,6 +53,29 @@ exports.Goodreads = class Goodreads
     _options.path = '/review/list/' + userId + '.xml?key=' + @options.key + '&sort=rating&per_page=5&shelf=' + listId
   
     checkCache _options, callback
+  
+  ### FRIENDS ###
+  getFriends: (userId, req, res, callback) ->
+    # Provide path to the API
+    console.log 'Getting friends ' + userId
+
+    _options = clone(@options);
+    _options.path = 'http://www.goodreads.com/friend/user/' + userId + '.xml?&key=' + @options.key
+    console.log _options.path
+    
+    request = consumer().get _options.path, req.session.oauthRequestToken, req.session.oauthRequestTokenSecret
+    request.addListener 'response', (response) ->
+      response.setEncoding('utf8')
+      response.addListener 'data', (chunk) ->
+        console.log chunk
+      response.addListener 'error', (error) ->
+        console.log error
+      response.addListener 'end', ->
+        console.log '--- END ---'
+    request.end()
+  
+    console.log request
+    # checkCache _options, callback
   
   ### OAUTH ###
   requestToken: (callback, req, res) ->
@@ -109,6 +133,7 @@ exports.Goodreads = class Goodreads
   
       res.on 'data', (chunk) ->
         tmp += chunk
+        console.log chunk
   
       res.on 'end', (e) ->
         parser.parseString tmp

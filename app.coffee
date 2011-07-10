@@ -54,7 +54,6 @@ app.get '/logout', (req, res) ->
 # Goodreads
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
-
   Goodreads.requestToken callback, req, res
   
 app.get '/goodreads/callback', (req, res) ->
@@ -62,6 +61,12 @@ app.get '/goodreads/callback', (req, res) ->
   callback = ''
   Goodreads.callback callback, req, res
   # Redirect back to '/' when done
+
+# Get logged in user's friends
+app.get '/friends', (req, res) ->
+  callback = ''
+  Goodreads.getFriends req.session.goodreads_id, req, res, (json) ->
+    res.send json
 
 app.get '/goodreads/list/:listName', (req, res) ->
   # Get a specific list

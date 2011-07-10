@@ -62,6 +62,13 @@
     callback = '';
     return Goodreads.callback(callback, req, res);
   });
+  app.get('/friends', function(req, res) {
+    var callback;
+    callback = '';
+    return Goodreads.getFriends(req.session.goodreads_id, req, res, function(json) {
+      return res.send(json);
+    });
+  });
   app.get('/goodreads/list/:listName', function(req, res) {
     return Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
       if (json) {
