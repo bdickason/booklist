@@ -42,26 +42,20 @@
     };
     /* FRIENDS */
     Goodreads.prototype.getFriends = function(userId, req, res, callback) {
-      var request, _options;
+      var _options;
       console.log('Getting friends ' + userId);
       _options = clone(this.options);
       _options.path = 'http://www.goodreads.com/friend/user/' + userId + '.xml?&key=' + this.options.key;
       console.log(_options.path);
-      request = consumer().get(_options.path, req.session.oauthRequestToken, req.session.oauthRequestTokenSecret);
-      request.addListener('response', function(response) {
-        response.setEncoding('utf8');
-        response.addListener('data', function(chunk) {
-          return console.log(chunk);
-        });
-        response.addListener('error', function(error) {
-          return console.log(error);
-        });
-        return response.addListener('end', function() {
-          return console.log('--- END ---');
-        });
+      console.log(req.session);
+      return consumer().getProtectedResource(_options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, function(error, data, response) {
+        if (error) {
+          console.log(consumer());
+          return res.send('Error getting OAuth request token : ' + JSON.stringify(error), 500);
+        } else {
+          return callback(data);
+        }
       });
-      request.end();
-      return console.log(request);
     };
     /* OAUTH */
     Goodreads.prototype.requestToken = function(callback, req, res) {
