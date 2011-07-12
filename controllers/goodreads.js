@@ -20,7 +20,6 @@
     consumer = function() {
       return new oauth.OAuth('http://goodreads.com/oauth/request_token', 'http://goodreads.com/oauth/access_token', cfg.GOODREADS_KEY, cfg.GOODREADS_SECRET, '1.0', 'http://localhost:3000/goodreads/callback', 'HMAC-SHA1');
     };
-    console.log('got this far!');
     redis_client = redis.createClient(cfg.REDIS_PORT, cfg.REDIS_HOSTNAME);
     redis_client.on('error', function(err) {
       return console.log('REDIS Error:' + err);
@@ -30,14 +29,14 @@
       var _options;
       console.log('Getting shelves ' + userId);
       _options = clone(this.options);
-      _options.path = '/shelf/list.xml?user_id=' + userId + "&key=" + this.options.key;
+      _options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + this.options.key;
       return checkCache(_options, callback);
     };
     Goodreads.prototype.getSingleList = function(userId, listId, callback) {
       var _options;
-      console.log('Getting list ' + userId);
+      console.log('Getting list: ' + listId);
       _options = clone(this.options);
-      _options.path = '/review/list/' + userId + '.xml?key=' + this.options.key + '&sort=rating&per_page=5&shelf=' + listId;
+      _options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + this.options.key + '&sort=rating&per_page=5&shelf=' + listId;
       return checkCache(_options, callback);
     };
     /* FRIENDS */
@@ -105,22 +104,22 @@
             console.log("REDIS readin' the cache!");
             return callback(JSON.parse(reply));
           } else {
-            console.log('Oops not in the cache!');
             return getRequest(_options, callback);
           }
         }
       });
     };
     getRequest = function(_options, callback) {
-      var tmp, _req;
+      var parser, tmp;
       tmp = '';
-      _req = http.request(_options, function(res) {
-        var parser;
+      parser = new xml2js.Parser();
+      return http.get(_options, function(res) {
+        console.log('HTTP REQUEST!!!');
         res.setEncoding('utf8');
         parser = new xml2js.Parser();
         res.on('data', function(chunk) {
           tmp += chunk;
-          return console.log(chunk);
+          return console.log('parsing chunks!');
         });
         res.on('end', function(e) {
           return parser.parseString(tmp);
@@ -129,13 +128,7 @@
           redis_client.setex(_options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result));
           return callback(result);
         });
-      });
-      _req.on('error', function(e) {
-        return console.log('problem with request: ' + e.message);
-      });
-      _req.write('data\n');
-      _req.write('data\n');
-      return _req.end();
+      }).end();
     };
     clone = function(obj) {
       if (obj !== null || typeof obj !== 'object') {

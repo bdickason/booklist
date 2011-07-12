@@ -415,3 +415,106 @@ table {
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    END Normalize.css
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+
+
+@media screen {
+  body {
+    background:#FFF;
+    border-top:solid .3em #000;
+    font-size:100%;
+  }
+  
+  .implied {
+  clip:rect(1px,1px,1px,1px);
+  position:absolute !important
+  }
+
+  .ielt8 .implied {
+  height:1px;
+  left:-999px;
+  overflow:hidden;
+  position:absolute;
+  text-indent:-999px;
+  top:-999px;
+  width:1px
+  }
+  
+  .ir {
+  display:block;
+  text-align:left;
+  text-indent:-9999px
+  }
+
+  address,
+  blockquote,
+  caption,
+  cite,
+  code,
+  dl,
+  figcaption,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  label,
+  legend,
+  ol,
+  p,
+  pre,
+  ul,
+  table {
+  display:block;
+  font:normal normal 400 1em/1.5em Georgia,Serif;
+  list-style:none;
+  margin:0 0 1.5em;
+  text-rendering:optimizeLegibility
+  }
+  
+  a {
+  color:#00F;
+  text-decoration:underline
+  }
+
+  a:hover {
+  color:#00A;
+  text-decoration:none
+  }
+
+  a:visited {
+  color:#00A
+  }
+  
+  hr {
+  border:none;
+  background-color:#EEE;
+  height:.1em;
+  margin:1.45em 0 1.4em
+  }
+  
+  input[type=submit] {
+   background:#EEE;
+   background:-moz-linear-gradient(top,#F7F7F7,#E6E6E6);
+   background:-webkit-gradient(linear,left top,left bottom,from(#F7F7F7),to(#E6E6E6));
+   border:solid .1em #666;
+   border-radius:.3em;
+   -moz-border-radius:.3em;
+   -webkit-border-radius:.3em;
+   cursor:pointer;
+   font-size:75%;
+   font-weight:700;
+   height:2em;
+   padding:0 .5em;
+   text-shadow:#FFF 0 .1em 0;
+   -moz-text-shadow:#FFF 0 .1em 0;
+   -webkit-text-shadow:#FFF 0 .1em 0
+   }
+    
+  .loadingDiv {
+      position:absolute;
+      top:50%;
+      left:45%;
+      width:350px;
+  }
+}

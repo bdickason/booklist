@@ -9,6 +9,7 @@
   app = express.createServer();
   app.configure(function() {
     app.set('views', __dirname + '/views');
+    app.set('view engine', 'jade');
     app.register('.html', require('jade'));
     app.use(express.methodOverride());
     app.use(express.bodyParser());
@@ -17,7 +18,8 @@
       secret: cfg.SESSION_SECRET,
       store: new RedisStore
     }));
-    return app.use(app.router);
+    app.use(app.router);
+    return app.use(express.static(__dirname + '/public'));
   });
   app.dynamicHelpers({
     session: function(req, res) {
@@ -33,7 +35,6 @@
   */
   /* Start Route Handling */
   app.get('/', function(req, res) {
-    console.log(req.session);
     if (req.session.goodreads_auth === 1) {
       return Goodreads.getShelves(req.session.goodreads_id, function(json) {
         if (json) {
@@ -72,7 +73,9 @@
   app.get('/goodreads/list/:listName', function(req, res) {
     return Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
       if (json) {
-        return res.render('list.jade', {
+        console.log('Rendering!!!');
+        return res.render('list/list-partial', {
+          layout: false,
           json: json
         });
       }

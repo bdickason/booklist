@@ -9,12 +9,14 @@ app = express.createServer()
 
 app.configure ->
   app.set 'views', __dirname + '/views'
+  app.set 'view engine', 'jade'
   app.register '.html', require 'jade'
   app.use express.methodOverride()
   app.use express.bodyParser()
   app.use express.cookieParser()
   app.use express.session { secret: cfg.SESSION_SECRET, store: new RedisStore}
   app.use app.router
+  app.use express.static(__dirname + '/public')
   
 app.dynamicHelpers { session: (req, res) -> req.session }
 
@@ -32,7 +34,6 @@ BooksModel = new (require './models/books').Books
 
 # Home Page
 app.get '/', (req, res) ->
-  console.log req.session
   if req.session.goodreads_auth == 1
     # User is authenticated
     
@@ -56,8 +57,8 @@ app.get '/goodreads/connect', (req, res) ->
   callback = ''
   Goodreads.requestToken callback, req, res
   
+# Handle goodreads callback  
 app.get '/goodreads/callback', (req, res) ->
-  # Handle goodreads callback
   callback = ''
   Goodreads.callback callback, req, res
   # Redirect back to '/' when done
@@ -68,11 +69,13 @@ app.get '/friends', (req, res) ->
   Goodreads.getFriends req.session.goodreads_id, req, res, (json) ->
     res.send json
 
+# Get a specific list
 app.get '/goodreads/list/:listName', (req, res) ->
-  # Get a specific list
   Goodreads.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
-      res.render 'list.jade', { json: json }
+        console.log 'Rendering!!!'
+        res.render 'list/list-partial', { layout: false, json: json } # Ajax
+      # Render full list      res.render 'list.jade', { layout: false json: json }        
 
 app.listen 3000

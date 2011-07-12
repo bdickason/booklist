@@ -18,15 +18,15 @@ exports.Goodreads = class Goodreads
       host: 'www.goodreads.com',
       port: 80,
       key: cfg.GOODREADS_KEY,
-      method: 'GET'
+      method: 'GET',
     }
+  
 
   # OAuth options
   consumer = ->
     new oauth.OAuth 'http://goodreads.com/oauth/request_token', 'http://goodreads.com/oauth/access_token', cfg.GOODREADS_KEY, cfg.GOODREADS_SECRET, '1.0', 'http://localhost:3000/goodreads/callback', 'HMAC-SHA1'
 
   # Start up redis to cache API stuff
-  console.log 'got this far!'
   redis_client = redis.createClient cfg.REDIS_PORT, cfg.REDIS_HOSTNAME
   redis_client.on 'error', (err) ->
     console.log 'REDIS Error:' + err
@@ -40,17 +40,17 @@ exports.Goodreads = class Goodreads
     console.log 'Getting shelves ' + userId
 
     _options = clone(@options);
-    _options.path = '/shelf/list.xml?user_id=' + userId + "&key=" + @options.key
+    _options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + @options.key
   
     checkCache _options, callback
   
   # Get a specific list by ID
   getSingleList: (userId, listId, callback) ->
     # Provide path to the API
-    console.log 'Getting list ' + userId
+    console.log 'Getting list: ' + listId
 
     _options = clone(@options);
-    _options.path = '/review/list/' + userId + '.xml?key=' + @options.key + '&sort=rating&per_page=5&shelf=' + listId
+    _options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + @options.key + '&sort=rating&per_page=5&shelf=' + listId
   
     checkCache _options, callback
   
@@ -116,19 +116,22 @@ exports.Goodreads = class Goodreads
           callback JSON.parse(reply)
         else
           # Crap! Go grab it!
-          console.log 'Oops not in the cache!'
           getRequest _options, callback
         
   getRequest = (_options, callback) ->
     # First check if object is in cache and call it back
     tmp = ''
-    _req = http.request _options, (res) ->
+    
+    parser = new xml2js.Parser()
+    
+    http.get _options, (res) ->
+      console.log 'HTTP REQUEST!!!'    
       res.setEncoding 'utf8'
       parser = new xml2js.Parser()
-  
+        
       res.on 'data', (chunk) ->
         tmp += chunk
-        console.log chunk
+        console.log 'parsing chunks!'
   
       res.on 'end', (e) ->
         parser.parseString tmp
@@ -136,13 +139,7 @@ exports.Goodreads = class Goodreads
       parser.on 'end', (result) ->
         redis_client.setex _options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)
         callback result
-  
-    _req.on 'error', (e) ->
-      console.log 'problem with request: ' + e.message
-    
-    _req.write 'data\n'
-    _req.write 'data\n'
-    _req.end()
+    .end()
     
   clone = (obj) ->
     if obj != null || typeof(obj) != 'object'
