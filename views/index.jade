@@ -4,6 +4,6 @@ article
   ul
     - each shelf in json.shelves.user_shelf
       li(id='#{shelf.name}')
-        // a(href='/goodreads/list/#{shelf.name}') #{shelf.name}
-        a(href='#', id='#{shelf.name}') #{shelf.name} 
+        a(href='/goodreads/list/#{shelf.name}') #{shelf.name}
+        // AJAX a(href='#', id='#{shelf.name}') #{shelf.name} 
         #{shelf.book_count['#']}

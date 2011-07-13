@@ -5,14 +5,9 @@
     }).ajaxStop(function() {
       return $(this).hide();
     });
-    jQuery.ajaxSetup({
+    return jQuery.ajaxSetup({
       async: true
     });
     /* GOODREADS */
-    return $('article a').each(function(index) {
-      var id;
-      id = $(this).attr('id');
-      return $(this).closest('li').load('/goodreads/list/' + id);
-    });
   });
 }).call(this);

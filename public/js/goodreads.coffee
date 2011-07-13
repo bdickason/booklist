@@ -12,9 +12,9 @@ $ ->
   ### GOODREADS ###
   
   # Grab list partial
-  $('article a').each (index) ->
-    id = $(this).attr('id')
-    $(this).closest('li').load('/goodreads/list/' + id)
+#  $('article a').each (index) ->
+#    id = $(this).attr('id')
+#    $(this).closest('li').load('/goodreads/list/' + id)
     
     # $().get '/goodreads/list' + id, (data) ->
     #  $(this).closest('li').html(data)
