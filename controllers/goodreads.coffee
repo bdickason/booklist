@@ -120,7 +120,8 @@ exports.Goodreads = class Goodreads
         
   getRequest = (_options, callback) ->
    
-    tmp = ''
+    # Some dude at the NodeJS Meetup said array push is faster
+    tmp = []
     
     parser = new xml2js.Parser()
     
@@ -130,11 +131,12 @@ exports.Goodreads = class Goodreads
       parser = new xml2js.Parser()
         
       res.on 'data', (chunk) ->
-        tmp += chunk
+        tmp.push chunk  # Throw the chunk into the array
         console.log 'parsing chunks!'
   
       res.on 'end', (e) ->
-        parser.parseString tmp
+        body = tmp.join('')
+        parser.parseString body
   
       parser.on 'end', (result) ->
         redis_client.setex _options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)
