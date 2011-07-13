@@ -67,7 +67,7 @@ exports.Goodreads = class Goodreads
     consumer().getProtectedResource _options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, (error, data, response) ->
       if error
         console.log consumer()
-        res.send 'Error getting OAuth request token : ' + JSON.stringify(error), 500
+        callback 'Error getting OAuth request token : ' + JSON.stringify(error), 500
       else
         callback data
     # checkCache _options, callback
@@ -77,7 +77,7 @@ exports.Goodreads = class Goodreads
     consumer().getOAuthRequestToken (error, oauthToken, oauthTokenSecret, results) -> 
       if error
         console.log consumer()
-        res.send 'Error getting OAuth request token : ' + JSON.stringify(error), 500
+        callback 'Error getting OAuth request token : ' + JSON.stringify(error), 500
       else
         req.session.oauthRequestToken = oauthToken
         req.session.oauthRequestTokenSecret = oauthTokenSecret
@@ -119,7 +119,7 @@ exports.Goodreads = class Goodreads
           getRequest _options, callback
         
   getRequest = (_options, callback) ->
-    # First check if object is in cache and call it back
+   
     tmp = ''
     
     parser = new xml2js.Parser()

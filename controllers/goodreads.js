@@ -50,7 +50,7 @@
       return consumer().getProtectedResource(_options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, function(error, data, response) {
         if (error) {
           console.log(consumer());
-          return res.send('Error getting OAuth request token : ' + JSON.stringify(error), 500);
+          return callback('Error getting OAuth request token : ' + JSON.stringify(error), 500);
         } else {
           return callback(data);
         }
@@ -61,7 +61,7 @@
       return consumer().getOAuthRequestToken(function(error, oauthToken, oauthTokenSecret, results) {
         if (error) {
           console.log(consumer());
-          return res.send('Error getting OAuth request token : ' + JSON.stringify(error), 500);
+          return callback('Error getting OAuth request token : ' + JSON.stringify(error), 500);
         } else {
           req.session.oauthRequestToken = oauthToken;
           req.session.oauthRequestTokenSecret = oauthTokenSecret;
