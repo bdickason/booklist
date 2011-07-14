@@ -12,7 +12,8 @@ $ ->
   ### GOODREADS ###
   
   # Grab list partial
-  $('li div .shelfItems').each (index) ->
+  $('.shelfItems').each (index) ->
+    console.log this
     id = $(this).attr('id')
     $(this).load('/goodreads/list/' + id)
     

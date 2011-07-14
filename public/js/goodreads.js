@@ -9,8 +9,9 @@
       async: true
     });
     /* GOODREADS */
-    return $('li div .shelfItems').each(function(index) {
+    return $('.shelfItems').each(function(index) {
       var id;
+      console.log(this);
       id = $(this).attr('id');
       return $(this).load('/goodreads/list/' + id);
     });

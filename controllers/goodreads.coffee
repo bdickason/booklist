@@ -19,6 +19,7 @@ exports.Goodreads = class Goodreads
       port: 80,
       key: cfg.GOODREADS_KEY,
       method: 'GET',
+      path: ''
     }
   
 
@@ -39,38 +40,35 @@ exports.Goodreads = class Goodreads
     # Provide path to the API
     console.log 'Getting shelves ' + userId
 
-    _options = clone(@options);
-    _options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + @options.key
+    @options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + @options.key
   
-    checkCache _options, callback
+    @getRequest 90, callback
   
   # Get a specific list by ID
   getSingleList: (userId, listId, callback) ->
     # Provide path to the API
     console.log 'Getting list: ' + listId
 
-    _options = clone(@options);
-    _options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + @options.key + '&sort=rating&per_page=5&shelf=' + listId
+    @options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + @options.key + '&sort=rating&per_page=5&shelf=' + listId
   
-    checkCache _options, callback
+    console.log "Path: " + @options.path
+    @getRequest 90, callback
   
   ### FRIENDS ###
   getFriends: (userId, req, res, callback) ->
     # Provide path to the API
     console.log 'Getting friends ' + userId
 
-    _options = clone(@options);
-    _options.path = 'http://www.goodreads.com/friend/user/' + userId + '.xml?&key=' + @options.key
-    console.log _options.path
+    @options.path = 'http://www.goodreads.com/friend/user/' + userId + '.xml?&key=' + @options.key
+    console.log @options.path
     console.log req.session
     
-    consumer().getProtectedResource _options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, (error, data, response) ->
+    consumer().getProtectedResource @options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, (error, data, response) ->
       if error
         console.log consumer()
         callback 'Error getting OAuth request token : ' + JSON.stringify(error), 500
       else
         callback data
-    # checkCache _options, callback
   
   ### OAUTH ###
   requestToken: (callback, req, res) ->
@@ -106,7 +104,8 @@ exports.Goodreads = class Goodreads
       console.log req.session.goodreads_name + 'signed in with user ID: ' + req.session.goodreads_id + '\n'
       res.redirect '/'
 
-  checkCache = (_options, callback) ->
+  getRequest: (cacheTime, callback) ->
+    _options = @options
     redis_client.get _options.path, (err, reply) ->
       if err
         console.log 'REDIS Error: ' + err
@@ -116,33 +115,31 @@ exports.Goodreads = class Goodreads
           callback JSON.parse(reply)
         else
           # Crap! Go grab it!
-          getRequest _options, callback
-        
-  getRequest = (_options, callback) ->
-   
-    # Some dude at the NodeJS Meetup said array push is faster
-    tmp = []
-    
-    parser = new xml2js.Parser()
-    
-    http.get _options, (res) ->
-      console.log 'HTTP REQUEST!!!'    
-      res.setEncoding 'utf8'
-      parser = new xml2js.Parser()
-        
-      res.on 'data', (chunk) ->
-        tmp.push chunk  # Throw the chunk into the array
-        console.log 'parsing chunks!'
-  
-      res.on 'end', (e) ->
-        body = tmp.join('')
-        parser.parseString body
-  
-      parser.on 'end', (result) ->
-        redis_client.setex _options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)
-        callback result
-    .end()
-    
+          # Some dude at the NodeJS Meetup said array push is faster
+          tmp = []
+
+          parser = new xml2js.Parser()
+          
+          console.log 'Right before request: ' + _options.path
+          
+          http.get _options, (res) ->
+            console.log 'HTTP REQUEST!!!'    
+            res.setEncoding 'utf8'
+            parser = new xml2js.Parser()
+
+            res.on 'data', (chunk) ->
+              tmp.push chunk  # Throw the chunk into the array
+              console.log 'parsing chunks!'
+
+            res.on 'end', (e) ->
+              body = tmp.join('')
+              parser.parseString body
+
+            parser.on 'end', (result) ->
+              redis_client.setex _options.path, cacheTime, JSON.stringify(result)
+              callback result
+          .end()
+              
   clone = (obj) ->
     if obj != null || typeof(obj) != 'object'
       return obj

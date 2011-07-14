@@ -21,7 +21,7 @@ app.configure ->
 app.dynamicHelpers { session: (req, res) -> req.session }
 
 ### Initialize controllers ###
-Goodreads = new (require './controllers/goodreads.js').Goodreads
+Goodreads = require './controllers/goodreads.js'
 # List = new (require './controllers/list.js').List
 
 ### Initialize models
@@ -38,7 +38,8 @@ app.get '/', (req, res) ->
     # User is authenticated
     
     # Get my shelevs
-    Goodreads.getShelves req.session.goodreads_id, (json) ->
+    gr = new Goodreads.Goodreads
+    gr.getShelves req.session.goodreads_id, (json) ->
       if json
         res.render 'index.jade', { json: json }
   
@@ -55,23 +56,27 @@ app.get '/logout', (req, res) ->
 # Goodreads
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
-  Goodreads.requestToken callback, req, res
+  gr = new Goodreads.Goodreads
+  gr.requestToken callback, req, res
   
 # Handle goodreads callback  
 app.get '/goodreads/callback', (req, res) ->
   callback = ''
-  Goodreads.callback callback, req, res
+  gr = new Goodreads.Goodreads
+  gr.callback callback, req, res
   # Redirect back to '/' when done
 
 # Get logged in user's friends
 app.get '/friends', (req, res) ->
   callback = ''
-  Goodreads.getFriends req.session.goodreads_id, req, res, (json) ->
+  gr = new Goodreads.Goodreads
+  gr.getFriends req.session.goodreads_id, req, res, (json) ->
     res.send json
 
 # Get a specific list
 app.get '/goodreads/list/:listName', (req, res) ->
-  Goodreads.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
+  gr = new Goodreads.Goodreads
+  gr.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
         console.log 'Rendering!!!'

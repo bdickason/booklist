@@ -27,7 +27,7 @@
     }
   });
   /* Initialize controllers */
-  Goodreads = new (require('./controllers/goodreads.js')).Goodreads;
+  Goodreads = require('./controllers/goodreads.js');
   /* Initialize models
   UsersModel = new (require './models/users').Users
   ListsModel = new (require './models/lists').Lists
@@ -35,8 +35,10 @@
   */
   /* Start Route Handling */
   app.get('/', function(req, res) {
+    var gr;
     if (req.session.goodreads_auth === 1) {
-      return Goodreads.getShelves(req.session.goodreads_id, function(json) {
+      gr = new Goodreads.Goodreads;
+      return gr.getShelves(req.session.goodreads_id, function(json) {
         if (json) {
           return res.render('index.jade', {
             json: json
@@ -54,24 +56,29 @@
     return res.redirect('/');
   });
   app.get('/goodreads/connect', function(req, res) {
-    var callback;
+    var callback, gr;
     callback = '';
-    return Goodreads.requestToken(callback, req, res);
+    gr = new Goodreads.Goodreads;
+    return gr.requestToken(callback, req, res);
   });
   app.get('/goodreads/callback', function(req, res) {
-    var callback;
+    var callback, gr;
     callback = '';
-    return Goodreads.callback(callback, req, res);
+    gr = new Goodreads.Goodreads;
+    return gr.callback(callback, req, res);
   });
   app.get('/friends', function(req, res) {
-    var callback;
+    var callback, gr;
     callback = '';
-    return Goodreads.getFriends(req.session.goodreads_id, req, res, function(json) {
+    gr = new Goodreads.Goodreads;
+    return gr.getFriends(req.session.goodreads_id, req, res, function(json) {
       return res.send(json);
     });
   });
   app.get('/goodreads/list/:listName', function(req, res) {
-    return Goodreads.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
+    var gr;
+    gr = new Goodreads.Goodreads;
+    return gr.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
       if (json) {
         console.log('Rendering!!!');
         return res.render('list/list-partial', {
