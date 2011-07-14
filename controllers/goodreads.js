@@ -50,7 +50,7 @@
       return consumer().getProtectedResource(_options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, function(error, data, response) {
         if (error) {
           console.log(consumer());
-          return res.send('Error getting OAuth request token : ' + JSON.stringify(error), 500);
+          return callback('Error getting OAuth request token : ' + JSON.stringify(error), 500);
         } else {
           return callback(data);
         }
@@ -61,7 +61,7 @@
       return consumer().getOAuthRequestToken(function(error, oauthToken, oauthTokenSecret, results) {
         if (error) {
           console.log(consumer());
-          return res.send('Error getting OAuth request token : ' + JSON.stringify(error), 500);
+          return callback('Error getting OAuth request token : ' + JSON.stringify(error), 500);
         } else {
           req.session.oauthRequestToken = oauthToken;
           req.session.oauthRequestTokenSecret = oauthTokenSecret;
@@ -111,18 +111,20 @@
     };
     getRequest = function(_options, callback) {
       var parser, tmp;
-      tmp = '';
+      tmp = [];
       parser = new xml2js.Parser();
       return http.get(_options, function(res) {
         console.log('HTTP REQUEST!!!');
         res.setEncoding('utf8');
         parser = new xml2js.Parser();
         res.on('data', function(chunk) {
-          tmp += chunk;
+          tmp.push(chunk);
           return console.log('parsing chunks!');
         });
         res.on('end', function(e) {
-          return parser.parseString(tmp);
+          var body;
+          body = tmp.join('');
+          return parser.parseString(body);
         });
         return parser.on('end', function(result) {
           redis_client.setex(_options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result));

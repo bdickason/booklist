@@ -67,7 +67,7 @@ exports.Goodreads = class Goodreads
     consumer().getProtectedResource _options.path, 'GET', req.session.goodreads_accessToken, req.session.goodreads_secret, (error, data, response) ->
       if error
         console.log consumer()
-        res.send 'Error getting OAuth request token : ' + JSON.stringify(error), 500
+        callback 'Error getting OAuth request token : ' + JSON.stringify(error), 500
       else
         callback data
     # checkCache _options, callback
@@ -77,7 +77,7 @@ exports.Goodreads = class Goodreads
     consumer().getOAuthRequestToken (error, oauthToken, oauthTokenSecret, results) -> 
       if error
         console.log consumer()
-        res.send 'Error getting OAuth request token : ' + JSON.stringify(error), 500
+        callback 'Error getting OAuth request token : ' + JSON.stringify(error), 500
       else
         req.session.oauthRequestToken = oauthToken
         req.session.oauthRequestTokenSecret = oauthTokenSecret
@@ -119,8 +119,9 @@ exports.Goodreads = class Goodreads
           getRequest _options, callback
         
   getRequest = (_options, callback) ->
-    # First check if object is in cache and call it back
-    tmp = ''
+   
+    # Some dude at the NodeJS Meetup said array push is faster
+    tmp = []
     
     parser = new xml2js.Parser()
     
@@ -130,11 +131,12 @@ exports.Goodreads = class Goodreads
       parser = new xml2js.Parser()
         
       res.on 'data', (chunk) ->
-        tmp += chunk
+        tmp.push chunk  # Throw the chunk into the array
         console.log 'parsing chunks!'
   
       res.on 'end', (e) ->
-        parser.parseString tmp
+        body = tmp.join('')
+        parser.parseString body
   
       parser.on 'end', (result) ->
         redis_client.setex _options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)
