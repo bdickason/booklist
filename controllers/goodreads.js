@@ -29,13 +29,12 @@
     Goodreads.prototype.getShelves = function(userId, callback) {
       console.log('Getting shelves ' + userId);
       this.options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + this.options.key;
-      return this.getRequest(90, callback);
+      return this.getRequest(callback);
     };
     Goodreads.prototype.getSingleList = function(userId, listId, callback) {
       console.log('Getting list: ' + listId);
-      this.options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + this.options.key + '&sort=rating&per_page=5&shelf=' + listId;
-      console.log("Path: " + this.options.path);
-      return this.getRequest(90, callback);
+      this.options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + this.options.key + '&shelf=' + listId;
+      return this.getRequest(callback);
     };
     /* FRIENDS */
     Goodreads.prototype.getFriends = function(userId, req, res, callback) {
@@ -91,7 +90,7 @@
         return res.redirect('/');
       });
     };
-    Goodreads.prototype.getRequest = function(cacheTime, callback) {
+    Goodreads.prototype.getRequest = function(callback) {
       var _options;
       _options = this.options;
       return redis_client.get(_options.path, function(err, reply) {
@@ -100,19 +99,14 @@
           return console.log('REDIS Error: ' + err);
         } else {
           if (reply) {
-            console.log("REDIS readin' the cache!");
             return callback(JSON.parse(reply));
           } else {
             tmp = [];
             parser = new xml2js.Parser();
-            console.log('Right before request: ' + _options.path);
-            return http.get(_options, function(res) {
-              console.log('HTTP REQUEST!!!');
+            return http.request(_options, function(res) {
               res.setEncoding('utf8');
-              parser = new xml2js.Parser();
               res.on('data', function(chunk) {
-                tmp.push(chunk);
-                return console.log('parsing chunks!');
+                return tmp.push(chunk);
               });
               res.on('end', function(e) {
                 var body;
@@ -120,7 +114,7 @@
                 return parser.parseString(body);
               });
               return parser.on('end', function(result) {
-                redis_client.setex(_options.path, cacheTime, JSON.stringify(result));
+                redis_client.setex(_options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result));
                 return callback(result);
               });
             }).end();

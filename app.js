@@ -80,7 +80,6 @@
     gr = new Goodreads.Goodreads;
     return gr.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
       if (json) {
-        console.log('Rendering!!!');
         return res.render('list/list-partial', {
           layout: false,
           json: json

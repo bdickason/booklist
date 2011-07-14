@@ -42,17 +42,16 @@ exports.Goodreads = class Goodreads
 
     @options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + @options.key
   
-    @getRequest 90, callback
+    @getRequest callback
   
   # Get a specific list by ID
   getSingleList: (userId, listId, callback) ->
     # Provide path to the API
     console.log 'Getting list: ' + listId
 
-    @options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + @options.key + '&sort=rating&per_page=5&shelf=' + listId
+    @options.path = 'http://www.goodreads.com/review/list/' + userId + '.xml?key=' + @options.key + '&shelf=' + listId
   
-    console.log "Path: " + @options.path
-    @getRequest 90, callback
+    @getRequest callback
   
   ### FRIENDS ###
   getFriends: (userId, req, res, callback) ->
@@ -104,39 +103,33 @@ exports.Goodreads = class Goodreads
       console.log req.session.goodreads_name + 'signed in with user ID: ' + req.session.goodreads_id + '\n'
       res.redirect '/'
 
-  getRequest: (cacheTime, callback) ->
+  getRequest: (callback) ->
     _options = @options
     redis_client.get _options.path, (err, reply) ->
       if err
         console.log 'REDIS Error: ' + err
       else
         if reply
-          console.log "REDIS readin' the cache!"
           callback JSON.parse(reply)
         else
           # Crap! Go grab it!
-          # Some dude at the NodeJS Meetup said array push is faster
-          tmp = []
+
+          tmp = []  # Russ at the NYC NodeJS Meetup said array push is faster
 
           parser = new xml2js.Parser()
-          
-          console.log 'Right before request: ' + _options.path
-          
-          http.get _options, (res) ->
-            console.log 'HTTP REQUEST!!!'    
+                
+          http.request _options, (res) ->
             res.setEncoding 'utf8'
-            parser = new xml2js.Parser()
 
             res.on 'data', (chunk) ->
               tmp.push chunk  # Throw the chunk into the array
-              console.log 'parsing chunks!'
 
             res.on 'end', (e) ->
               body = tmp.join('')
               parser.parseString body
 
             parser.on 'end', (result) ->
-              redis_client.setex _options.path, cacheTime, JSON.stringify(result)
+              redis_client.setex _options.path, cfg.REDIS_CACHE_TIME, JSON.stringify(result)
               callback result
           .end()
               

@@ -79,7 +79,6 @@ app.get '/goodreads/list/:listName', (req, res) ->
   gr.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
-        console.log 'Rendering!!!'
         res.render 'list/list-partial', { layout: false, json: json } # Ajax
       # Render full list      res.render 'list.jade', { layout: false json: json }        
 

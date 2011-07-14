@@ -21,7 +21,7 @@ User = new Schema {
   uid : { type: String, required: true, unique: true },
   name : { type: String, required: true },
   userID : { type: String, required: true },
-  active : { type: Number, default: 1 },
+  active : { type: Number, default: 1 }
   ### Can't seem to get these working in .coffee ###
   # lists : [List],  // A list contains n books
   # likes : [Like]
