@@ -1,5 +1,5 @@
 (function() {
-  var Goodreads, RedisStore, app, cfg, express, http, oauth, sys;
+  var Goodreads, RedisStore, Users, app, cfg, express, http, oauth, sys;
   http = require('http');
   express = require('express');
   oauth = require('oauth');
@@ -28,6 +28,7 @@
   });
   /* Initialize controllers */
   Goodreads = require('./controllers/goodreads.js');
+  Users = require('./controllers/users.js');
   /* Initialize models
   UsersModel = new (require './models/users').Users
   ListsModel = new (require './models/lists').Lists

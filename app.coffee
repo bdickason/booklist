@@ -22,6 +22,7 @@ app.dynamicHelpers { session: (req, res) -> req.session }
 
 ### Initialize controllers ###
 Goodreads = require './controllers/goodreads.js'
+Users = require './controllers/users.js'
 # List = new (require './controllers/list.js').List
 
 ### Initialize models
@@ -64,6 +65,7 @@ app.get '/goodreads/callback', (req, res) ->
   callback = ''
   gr = new Goodreads.Goodreads
   gr.callback callback, req, res
+  
   # Redirect back to '/' when done
 
 # Get logged in user's friends

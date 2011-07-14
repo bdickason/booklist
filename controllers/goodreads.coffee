@@ -7,6 +7,7 @@ oauth = require 'oauth'
 redis = require 'redis'
 sys = require 'sys'
 cfg = require '../config/config.js' # contains API keys, etc.
+users = require './users.js'
 
 exports.Goodreads = class Goodreads
   
@@ -96,12 +97,19 @@ exports.Goodreads = class Goodreads
             parser.parseString(data)
   
     parser.on 'end', (result) ->
+      console.log result
       req.session.goodreads_name = result.user.name
       req.session.goodreads_id = result.user['@'].id
       req.session.goodreads_auth = 1
 
       console.log req.session.goodreads_name + 'signed in with user ID: ' + req.session.goodreads_id + '\n'
       res.redirect '/'
+      
+      if req.session.goodreads_id != null
+        Users = new users.Users
+        Users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback)
+        console.log 'finished saving to the db'
+      
 
   getRequest: (callback) ->
     _options = @options
