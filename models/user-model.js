@@ -27,7 +27,7 @@
       type: Number,
       "default": 1
     },
-    lists: [List]
+    lists: [List.schema]
   });
   mongoose.model('User', UserSchema);
   module.exports = db.model('User');

@@ -33,14 +33,17 @@
   /* Initialize controllers */
   Goodreads = (require('./controllers/goodreads.js')).Goodreads;
   Users = (require('./controllers/users.js')).Users;
-  Lists = new (require('./controllers/lists.js')).Lists;
+  Lists = (require('./controllers/lists.js')).Lists;
   /* Start Route Handling */
   app.get('/', function(req, res) {
     var gr;
     if (req.session.goodreads_auth === 1) {
       gr = new Goodreads;
       return gr.getShelves(req.session.goodreadsID, function(json) {
+        var list;
         if (json) {
+          list = new Lists;
+          List.add(req.session.goodreadsID, json);
           return res.render('index.jade', {
             json: json
           });

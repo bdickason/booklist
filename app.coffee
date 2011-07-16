@@ -27,7 +27,7 @@ app.dynamicHelpers { session: (req, res) -> req.session }
 ### Initialize controllers ###
 Goodreads = (require './controllers/goodreads.js').Goodreads
 Users = (require './controllers/users.js').Users
-Lists = new (require './controllers/lists.js').Lists
+Lists = (require './controllers/lists.js').Lists
 
 
 ### Start Route Handling ###
@@ -40,8 +40,8 @@ app.get '/', (req, res) ->
     gr = new Goodreads
     gr.getShelves req.session.goodreadsID, (json) ->
       if json
-        # List = new Lists
-        # List.add req.session.goodreadsID, 
+        list = new Lists
+        List.add req.session.goodreadsID, json
         res.render 'index.jade', { json: json }
   
   else

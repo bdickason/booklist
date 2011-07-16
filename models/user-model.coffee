@@ -19,7 +19,7 @@ UserSchema = new Schema {
   name : { type: String, required: true },
   goodreadsID : { type: String, required: true },
   active : { type: Number, default: 1 },
-  lists : [ List ]  # A list contains n books
+  lists : [ List.schema ]  # A list contains n books
   # likes : [ Like.schema ]
 }
 
