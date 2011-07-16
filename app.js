@@ -22,24 +22,22 @@
     app.use(app.router);
     return app.use(express.static(__dirname + '/public'));
   });
+  mongoose.connection.on('open', function() {
+    return console.log('Mongo is connected!');
+  });
   app.dynamicHelpers({
     session: function(req, res) {
       return req.session;
     }
   });
   /* Initialize controllers */
-  Goodreads = require('./controllers/goodreads.js');
-  Users = require('./controllers/users.js');
-  /* Initialize models
-  UsersModel = new (require './models/users').Users
-  ListsModel = new (require './models/lists').Lists
-  BooksModel = new (require './models/books').Books
-  */
+  Goodreads = (require('./controllers/goodreads.js')).Goodreads;
+  Users = (require('./controllers/users.js')).Users;
   /* Start Route Handling */
   app.get('/', function(req, res) {
     var gr;
     if (req.session.goodreads_auth === 1) {
-      gr = new Goodreads.Goodreads;
+      gr = new Goodreads;
       return gr.getShelves(req.session.goodreads_id, function(json) {
         if (json) {
           return res.render('index.jade', {
@@ -54,32 +52,33 @@
   app.get('/logout', function(req, res) {
     console.log('--- LOGOUT ---');
     console.log(req.session);
+    console.log('--- LOGOUT ---');
     req.session.destroy();
     return res.redirect('/');
   });
   app.get('/goodreads/connect', function(req, res) {
     var callback, gr;
     callback = '';
-    gr = new Goodreads.Goodreads;
+    gr = new Goodreads;
     return gr.requestToken(callback, req, res);
   });
   app.get('/goodreads/callback', function(req, res) {
     var callback, gr;
     callback = '';
-    gr = new Goodreads.Goodreads;
+    gr = new Goodreads;
     return gr.callback(callback, req, res);
   });
   app.get('/friends', function(req, res) {
     var callback, gr;
     callback = '';
-    gr = new Goodreads.Goodreads;
+    gr = new Goodreads;
     return gr.getFriends(req.session.goodreads_id, req, res, function(json) {
       return res.send(json);
     });
   });
   app.get('/goodreads/list/:listName', function(req, res) {
     var gr;
-    gr = new Goodreads.Goodreads;
+    gr = new Goodreads;
     return gr.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
       if (json) {
         return res.render('list/list-partial', {

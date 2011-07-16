@@ -1,13 +1,13 @@
 (function() {
   /* Goodreads - Handles all connectivity to Goodreads API */
-  /* API Docs: http://www.goodreads.com/api */  var Goodreads, cfg, http, oauth, redis, sys, users, xml2js;
+  /* API Docs: http://www.goodreads.com/api */  var Goodreads, Users, cfg, http, oauth, redis, sys, xml2js;
   http = require('http');
   xml2js = require('xml2js');
   oauth = require('oauth');
   redis = require('redis');
   sys = require('sys');
   cfg = require('../config/config.js');
-  users = require('./users.js');
+  Users = (require('./users.js')).Users;
   exports.Goodreads = Goodreads = (function() {
     /* CONFIG */    var clone, consumer, redis_client;
     function Goodreads() {
@@ -26,7 +26,7 @@
     redis_client.on('error', function(err) {
       return console.log('REDIS Error:' + err);
     });
-    /* Bookshelves */
+    /* BOOKSHELVES */
     Goodreads.prototype.getShelves = function(userId, callback) {
       console.log('Getting shelves ' + userId);
       this.options.path = 'http://www.goodreads.com/shelf/list.xml?user_id=' + userId + "&key=" + this.options.key;
@@ -84,21 +84,20 @@
         }
       });
       return parser.on('end', function(result) {
-        var Users;
-        console.log(result);
+        var users;
         req.session.goodreads_name = result.user.name;
         req.session.goodreads_id = result.user['@'].id;
         req.session.goodreads_auth = 1;
         console.log(req.session.goodreads_name + 'signed in with user ID: ' + req.session.goodreads_id + '\n');
         res.redirect('/');
-        console.log(req.session.goodreads_id);
         if (req.session.goodreads_id !== null) {
-          Users = new users.Users;
-          Users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback);
+          users = new Users;
+          users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback);
           return console.log('finished saving to the db');
         }
       });
     };
+    /* API: 'GET' */
     Goodreads.prototype.getRequest = function(callback) {
       var _options;
       _options = this.options;

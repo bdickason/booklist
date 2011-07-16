@@ -19,28 +19,25 @@ app.configure ->
   app.use app.router
   app.use express.static(__dirname + '/public')
   
+mongoose.connection.on 'open', ->
+  console.log 'Mongo is connected!'
+  
 app.dynamicHelpers { session: (req, res) -> req.session }
 
 ### Initialize controllers ###
-Goodreads = require './controllers/goodreads.js'
-Users = require './controllers/users.js'
+Goodreads = (require './controllers/goodreads.js').Goodreads
+Users = (require './controllers/users.js').Users
 # List = new (require './controllers/list.js').List
 
-### Initialize models
-UsersModel = new (require './models/users').Users
-ListsModel = new (require './models/lists').Lists
-BooksModel = new (require './models/books').Books
-###
-
 ### Start Route Handling ###
-
+ 
 # Home Page
 app.get '/', (req, res) ->
   if req.session.goodreads_auth == 1
     # User is authenticated
     
     # Get my shelevs
-    gr = new Goodreads.Goodreads
+    gr = new Goodreads
     gr.getShelves req.session.goodreads_id, (json) ->
       if json
         res.render 'index.jade', { json: json }
@@ -52,19 +49,20 @@ app.get '/', (req, res) ->
 app.get '/logout', (req, res) ->
   console.log '--- LOGOUT ---'
   console.log req.session
+  console.log '--- LOGOUT ---'
   req.session.destroy()
   res.redirect '/'
 
 # Goodreads
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
-  gr = new Goodreads.Goodreads
+  gr = new Goodreads
   gr.requestToken callback, req, res
   
 # Handle goodreads callback  
 app.get '/goodreads/callback', (req, res) ->
   callback = ''
-  gr = new Goodreads.Goodreads
+  gr = new Goodreads
   gr.callback callback, req, res
   
   # Redirect back to '/' when done
@@ -72,13 +70,13 @@ app.get '/goodreads/callback', (req, res) ->
 # Get logged in user's friends
 app.get '/friends', (req, res) ->
   callback = ''
-  gr = new Goodreads.Goodreads
+  gr = new Goodreads
   gr.getFriends req.session.goodreads_id, req, res, (json) ->
     res.send json
 
 # Get a specific list
 app.get '/goodreads/list/:listName', (req, res) ->
-  gr = new Goodreads.Goodreads
+  gr = new Goodreads
   gr.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads

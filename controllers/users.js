@@ -31,7 +31,7 @@
         if (err) {
           return console.log('Error Saving: ' + err);
         } else {
-          return console.log('Saved: ' + User);
+          return console.log('Saved: ' + user);
         }
       });
     };
