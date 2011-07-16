@@ -4,11 +4,13 @@ html(lang="en")
     title Booklist
     link(rel='stylesheet', href='/css/style.css')
     script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
-    script(type='text/javascript', src='js/goodreads.js')
+    script(type='text/javascript', src='/js/goodreads.js')
   body
     header
       #global_nav
         a(href='/') Home 
+        /
+        a(href='/users/') Users 
         /
         a(href='/logout') Logout 
     != body

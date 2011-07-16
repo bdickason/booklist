@@ -12,10 +12,10 @@
         }
       });
     };
-    Users.prototype.findByID = function(id, callback) {
-      var user;
-      user = new User;
-      return user.findById(id, function(err, user) {
+    Users.prototype.findById = function(id, callback) {
+      return User.find({
+        'goodreadsID': id
+      }, function(err, user) {
         if (!err) {
           return callback(user);
         }

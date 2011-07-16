@@ -1,0 +1,4 @@
+ul.users
+  - each user in json
+    li.user(id='#{user.goodreadsID}')
+      a(href='/users/#{user.goodreadsID}') #{user.name}

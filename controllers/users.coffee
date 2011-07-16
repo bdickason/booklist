@@ -13,9 +13,8 @@ exports.Users = class Users
   		    callback users 
 
   # Get a list by ID
-  findByID: (id, callback) ->
-    user = new User
-    user.findById id, (err, user) ->
+  findById: (id, callback) ->
+    User.find {'goodreadsID': id}, (err, user) ->
       if !err
         callback user
 

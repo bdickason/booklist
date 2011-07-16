@@ -47,13 +47,22 @@ app.get '/', (req, res) ->
     # Prompt for login
     res.send "You are not logged in. <A HREF='/goodreads/connect'>Click here</A> to login"
 
-app.get '/logout', (req, res) ->
-  console.log '--- LOGOUT ---'
-  console.log req.session
-  console.log '--- LOGOUT ---'
-  req.session.destroy()
-  res.redirect '/'
-
+# List All Users
+app.get '/users', (req, res) ->
+  callback = ''
+  user = new Users
+  user.getUsers (json) ->
+    console.log json
+    res.render 'users', { json: json }
+    
+# Single User Profile
+app.get '/users/:id', (req, res) ->
+  callback = ''
+  user = new Users
+  user.findById req.params.id, (json) ->
+    console.log json
+    res.render 'users/singleUser', { json: json }
+  
 # Goodreads
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
@@ -65,7 +74,6 @@ app.get '/goodreads/callback', (req, res) ->
   callback = ''
   gr = new Goodreads
   gr.callback callback, req, res
-  
   # Redirect back to '/' when done
 
 # Get logged in user's friends
@@ -81,7 +89,14 @@ app.get '/goodreads/list/:listName', (req, res) ->
   gr.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
-        res.render 'list/list-partial', { layout: false, json: json } # Ajax
-      # Render full list      res.render 'list.jade', { layout: false json: json }        
+      res.render 'list/list-partial', { layout: false, json: json } # Ajax
+      # res.render 'list/list', { json: json } # Render full list
 
+app.get '/logout', (req, res) ->
+  console.log '--- LOGOUT ---'
+  console.log req.session
+  console.log '--- LOGOUT ---'
+  req.session.destroy()
+  res.redirect '/'
+        
 app.listen 3000

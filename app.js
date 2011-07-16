@@ -49,12 +49,27 @@
       return res.send("You are not logged in. <A HREF='/goodreads/connect'>Click here</A> to login");
     }
   });
-  app.get('/logout', function(req, res) {
-    console.log('--- LOGOUT ---');
-    console.log(req.session);
-    console.log('--- LOGOUT ---');
-    req.session.destroy();
-    return res.redirect('/');
+  app.get('/users', function(req, res) {
+    var callback, user;
+    callback = '';
+    user = new Users;
+    return user.getUsers(function(json) {
+      console.log(json);
+      return res.render('users', {
+        json: json
+      });
+    });
+  });
+  app.get('/users/:id', function(req, res) {
+    var callback, user;
+    callback = '';
+    user = new Users;
+    return user.findById(req.params.id, function(json) {
+      console.log(json);
+      return res.render('users/singleUser', {
+        json: json
+      });
+    });
   });
   app.get('/goodreads/connect', function(req, res) {
     var callback, gr;
@@ -87,6 +102,13 @@
         });
       }
     });
+  });
+  app.get('/logout', function(req, res) {
+    console.log('--- LOGOUT ---');
+    console.log(req.session);
+    console.log('--- LOGOUT ---');
+    req.session.destroy();
+    return res.redirect('/');
   });
   app.listen(3000);
 }).call(this);
