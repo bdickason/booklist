@@ -7,7 +7,7 @@ oauth = require 'oauth'
 redis = require 'redis'
 sys = require 'sys'
 cfg = require '../config/config.js' # contains API keys, etc.
-Users = (require './users.js').Users
+Users = (require './user.js').User
 
 exports.Goodreads = class Goodreads
   

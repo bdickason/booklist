@@ -32,18 +32,36 @@
   });
   /* Initialize controllers */
   Goodreads = (require('./controllers/goodreads.js')).Goodreads;
-  Users = (require('./controllers/users.js')).Users;
-  Lists = (require('./controllers/lists.js')).Lists;
+  Users = (require('./controllers/user.js')).User;
+  Lists = (require('./controllers/list.js')).List;
   /* Start Route Handling */
   app.get('/', function(req, res) {
     var gr;
     if (req.session.goodreads_auth === 1) {
       gr = new Goodreads;
       return gr.getShelves(req.session.goodreadsID, function(json) {
-        var list;
+        var user;
         if (json) {
-          list = new Lists;
-          List.add(req.session.goodreadsID, json);
+          user = new Users;
+          user.findById(req.session.goodreadsID, function(currentUser) {
+            var shelf, _i, _len, _ref, _results;
+            _ref = json.shelves.user_shelf;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              shelf = _ref[_i];
+              user = new Users;
+              currentUser[0].lists.push({
+                name: shelf.name,
+                userId: req.session.goodreadsID
+              });
+              _results.push(currentUser[0].save(function(err) {
+                if (err) {
+                  return console.log(err);
+                }
+              }));
+            }
+            return _results;
+          });
           return res.render('index.jade', {
             json: json
           });
@@ -57,8 +75,7 @@
     var callback, user;
     callback = '';
     user = new Users;
-    return user.getUsers(function(json) {
-      console.log(json);
+    return user.findAll(function(json) {
       return res.render('users', {
         json: json
       });
@@ -69,8 +86,29 @@
     callback = '';
     user = new Users;
     return user.findById(req.params.id, function(json) {
-      console.log(json);
       return res.render('users/singleUser', {
+        json: json
+      });
+    });
+  });
+  app.get('/lists', function(req, res) {
+    var callback, list;
+    callback = '';
+    list = new Lists;
+    return list.findAll(function(json) {
+      console.log(json);
+      return res.render('lists', {
+        json: json
+      });
+    });
+  });
+  app.get('/lists/:id', function(req, res) {
+    var callback, list;
+    callback = '';
+    list = new Lists;
+    return list.findById(req.params.id, function(json) {
+      console.log(json);
+      return res.render('lists/list-partial', {
         json: json
       });
     });
@@ -100,7 +138,7 @@
     gr = new Goodreads;
     return gr.getSingleList(req.session.goodreadsID, req.params.listName, function(json) {
       if (json) {
-        return res.render('list/list-partial', {
+        return res.render('lists/list-partial', {
           layout: false,
           json: json
         });

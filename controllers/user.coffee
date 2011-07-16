@@ -7,12 +7,12 @@ Users = require '../models/user-model.js'
 exports.User = class User
 
   # Get all Users
-  getUsers: (callback) ->
+  findAll: (callback) ->
     Users.find {}, (err, users) ->
       if !err
-  		    callback users 
+        callback users 
 
-  # Get a list by ID
+  # Get a user by ID
   findById: (id, callback) ->
     Users.find {'goodreadsID': id}, (err, user) ->
       if !err
@@ -26,4 +26,3 @@ exports.User = class User
         console.log 'Error Saving: ' + err
       else
         console.log 'Saved: ' + user
-    

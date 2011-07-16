@@ -5,17 +5,10 @@
   Lists = require('../models/list-model.js');
   exports.List = List = (function() {
     function List() {}
-    List.prototype.getLists = function(callback) {
+    List.prototype.findAll = function(callback) {
       return Lists.find({}, function(err, lists) {
         if (!err) {
           return callback(lists);
-        }
-      });
-    };
-    List.prototype.findById = function(id, callback) {
-      return Lists.findById(id, function(err, list) {
-        if (!err) {
-          return callback(list);
         }
       });
     };
@@ -28,9 +21,20 @@
         }
       });
     };
-    List.prototype.add = function(userId, json, callback) {
-      console.log("UserId: " + userId);
-      return console.log("Json:" + json);
+    List.prototype.add = function(json, callback) {
+      var tmp;
+      tmp = new Lists({
+        'name': json.name
+      });
+      return tmp.save(function(err) {
+        if (!err) {
+          console.log('Saved List: ' + tmp.name);
+          return callback(tmp);
+        } else {
+          console.log('ERROR Saving: ' + tmp.name + err);
+          return callback(err);
+        }
+      });
     };
     return List;
   })();

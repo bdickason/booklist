@@ -7,16 +7,10 @@ Lists = require '../models/list-model.js'
 exports.List = class List
   
   # Get all Lists in the system
-  getLists: (callback) ->
+  findAll: (callback) ->
     Lists.find {}, (err, lists) ->
       if !err
   	    callback lists
-
-  # Get a list by ID
-  findById: (id, callback) ->
-    Lists.findById id, (err, list) ->
-      if !err
-        callback list
 
   # Get lists for a given User
   findByUserId: (id, callback) ->
@@ -25,6 +19,16 @@ exports.List = class List
         callback lists
   
   # Add a list to a user's shelf
-  add: (userId, json, callback) ->
-    console.log "UserId: " + userId
-    console.log "Json:" + json
+  add: (json, callback) ->
+    tmp = new Lists { 'name': json.name }
+    tmp.save (err) ->
+      if !err
+        console.log 'Saved List: ' + tmp.name
+        callback tmp
+      else
+        console.log 'ERROR Saving: ' + tmp.name + err
+        callback err
+#    Lists.save (err) ->
+#      if !(err) 
+#        console.log 'Success! Added: ' + json.name
+        

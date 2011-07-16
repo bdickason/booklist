@@ -26,8 +26,8 @@ app.dynamicHelpers { session: (req, res) -> req.session }
 
 ### Initialize controllers ###
 Goodreads = (require './controllers/goodreads.js').Goodreads
-Users = (require './controllers/users.js').Users
-Lists = (require './controllers/lists.js').Lists
+Users = (require './controllers/user.js').User
+Lists = (require './controllers/list.js').List
 
 
 ### Start Route Handling ###
@@ -39,9 +39,20 @@ app.get '/', (req, res) ->
     # Get my shelevs
     gr = new Goodreads
     gr.getShelves req.session.goodreadsID, (json) ->
-      if json
-        list = new Lists
-        List.add req.session.goodreadsID, json
+      if json 
+        # grab user's lists and store them in the db
+        user = new Users
+        user.findById req.session.goodreadsID, (currentUser) ->
+          for shelf in json.shelves.user_shelf
+            # Have to check to make sure each shelf isn't a dupe
+            user = new Users
+            
+            ## TODO - Insert check for duplicate content
+            currentUser[0].lists.push { name: shelf.name, userId: req.session.goodreadsID }
+            currentUser[0].save (err) ->
+              if err
+                console.log err
+
         res.render 'index.jade', { json: json }
   
   else
@@ -52,8 +63,7 @@ app.get '/', (req, res) ->
 app.get '/users', (req, res) ->
   callback = ''
   user = new Users
-  user.getUsers (json) ->
-    console.log json
+  user.findAll (json) ->
     res.render 'users', { json: json }
     
 # Single User Profile
@@ -61,9 +71,24 @@ app.get '/users/:id', (req, res) ->
   callback = ''
   user = new Users
   user.findById req.params.id, (json) ->
-    console.log json
     res.render 'users/singleUser', { json: json }
   
+# List All Lists
+app.get '/lists', (req, res) ->
+  callback = ''
+  list = new Lists
+  list.findAll (json) ->
+    console.log json
+    res.render 'lists', { json: json }
+    
+# Single Individual List
+app.get '/lists/:id', (req, res) ->
+  callback = ''
+  list = new Lists
+  list.findById req.params.id, (json) ->
+    console.log json
+    res.render 'lists/list-partial', { json: json }
+
 # Goodreads
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
@@ -90,7 +115,7 @@ app.get '/goodreads/list/:listName', (req, res) ->
   gr.getSingleList req.session.goodreadsID, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
-      res.render 'list/list-partial', { layout: false, json: json } # Ajax
+      res.render 'lists/list-partial', { layout: false, json: json } # Ajax
       # res.render 'list/list', { json: json } # Render full list
 
 app.get '/logout', (req, res) ->

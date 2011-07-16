@@ -5,7 +5,7 @@
   Users = require('../models/user-model.js');
   exports.User = User = (function() {
     function User() {}
-    User.prototype.getUsers = function(callback) {
+    User.prototype.findAll = function(callback) {
       return Users.find({}, function(err, users) {
         if (!err) {
           return callback(users);
