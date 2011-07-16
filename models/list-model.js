@@ -1,34 +1,34 @@
 (function() {
-  var Book, ObjectId, Schema, db, mongoose;
+  var Book, ListSchema, ObjectId, Schema, db, mongoose;
   mongoose = require('mongoose');
+  Book = require('./book-model.js');
   db = mongoose.connect('mongodb://localhost/booklist');
   Schema = mongoose.Schema;
   ObjectId = Schema.ObjectId;
-  Book = new Schema({
+  ListSchema = new Schema({
     uid: {
       type: String,
       required: true,
       unique: true
     },
-    title: {
+    name: {
       type: String,
       required: true
     },
-    author: {
+    userId: {
       type: String,
       required: true
     },
-    isbn: {
+    active: {
       type: Number,
-      required: true
+      "default": 1
     },
-    cover: {
-      type: String
+    likes: {
+      type: Number,
+      "default": 0
     },
-    rating: {
-      type: Number
-    }
+    books: [Book.schema]
   });
-  mongoose.model('Book', Book);
-  Book = mongoose.model('Book');
+  mongoose.model('List', ListSchema);
+  module.exports = db.model('List');
 }).call(this);

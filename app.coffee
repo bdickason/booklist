@@ -27,7 +27,7 @@ app.dynamicHelpers { session: (req, res) -> req.session }
 ### Initialize controllers ###
 Goodreads = (require './controllers/goodreads.js').Goodreads
 Users = (require './controllers/users.js').Users
-# Lists = new (require './controllers/lists.js').Lists
+Lists = new (require './controllers/lists.js').Lists
 
 
 ### Start Route Handling ###
@@ -36,11 +36,12 @@ Users = (require './controllers/users.js').Users
 app.get '/', (req, res) ->
   if req.session.goodreads_auth == 1
     # User is authenticated
-    
     # Get my shelevs
     gr = new Goodreads
-    gr.getShelves req.session.goodreads_id, (json) ->
+    gr.getShelves req.session.goodreadsID, (json) ->
       if json
+        # List = new Lists
+        # List.add req.session.goodreadsID, 
         res.render 'index.jade', { json: json }
   
   else
@@ -80,13 +81,13 @@ app.get '/goodreads/callback', (req, res) ->
 app.get '/friends', (req, res) ->
   callback = ''
   gr = new Goodreads
-  gr.getFriends req.session.goodreads_id, req, res, (json) ->
+  gr.getFriends req.session.goodreadsID, req, res, (json) ->
     res.send json
 
 # Get a specific list
 app.get '/goodreads/list/:listName', (req, res) ->
   gr = new Goodreads
-  gr.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
+  gr.getSingleList req.session.goodreadsID, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
       res.render 'list/list-partial', { layout: false, json: json } # Ajax

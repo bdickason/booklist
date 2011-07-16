@@ -1,5 +1,5 @@
 (function() {
-  var Goodreads, RedisStore, Users, app, cfg, express, http, mongoose, oauth, sys;
+  var Goodreads, Lists, RedisStore, Users, app, cfg, express, http, mongoose, oauth, sys;
   http = require('http');
   express = require('express');
   oauth = require('oauth');
@@ -33,12 +33,13 @@
   /* Initialize controllers */
   Goodreads = (require('./controllers/goodreads.js')).Goodreads;
   Users = (require('./controllers/users.js')).Users;
+  Lists = new (require('./controllers/lists.js')).Lists;
   /* Start Route Handling */
   app.get('/', function(req, res) {
     var gr;
     if (req.session.goodreads_auth === 1) {
       gr = new Goodreads;
-      return gr.getShelves(req.session.goodreads_id, function(json) {
+      return gr.getShelves(req.session.goodreadsID, function(json) {
         if (json) {
           return res.render('index.jade', {
             json: json
@@ -87,14 +88,14 @@
     var callback, gr;
     callback = '';
     gr = new Goodreads;
-    return gr.getFriends(req.session.goodreads_id, req, res, function(json) {
+    return gr.getFriends(req.session.goodreadsID, req, res, function(json) {
       return res.send(json);
     });
   });
   app.get('/goodreads/list/:listName', function(req, res) {
     var gr;
     gr = new Goodreads;
-    return gr.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
+    return gr.getSingleList(req.session.goodreadsID, req.params.listName, function(json) {
       if (json) {
         return res.render('list/list-partial', {
           layout: false,
