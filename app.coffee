@@ -27,7 +27,8 @@ app.dynamicHelpers { session: (req, res) -> req.session }
 ### Initialize controllers ###
 Goodreads = (require './controllers/goodreads.js').Goodreads
 Users = (require './controllers/users.js').Users
-# List = new (require './controllers/list.js').List
+# Lists = new (require './controllers/lists.js').Lists
+
 
 ### Start Route Handling ###
  

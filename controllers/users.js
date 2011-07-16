@@ -2,7 +2,7 @@
   var User, Users, db, mongoose;
   mongoose = require('mongoose');
   db = mongoose.connect('mongodb://localhost/booklist');
-  User = require('../models/user.js');
+  User = require('../models/user-model.js');
   exports.Users = Users = (function() {
     function Users() {}
     Users.prototype.getUsers = function(callback) {

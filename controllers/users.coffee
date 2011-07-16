@@ -2,7 +2,7 @@ mongoose = require 'mongoose'
 db = mongoose.connect 'mongodb://localhost/booklist'
 
 # Models
-User = require '../models/user.js'
+User = require '../models/user-model.js'
 
 exports.Users = class Users
 
