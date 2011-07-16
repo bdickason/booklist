@@ -3,6 +3,7 @@ express = require 'express'
 oauth = require 'oauth'
 RedisStore = (require 'connect-redis')(express)
 sys = require 'sys'
+mongoose = require 'mongoose'
 cfg = require './config/config.js'    # contains API keys, etc.
 
 app = express.createServer()

@@ -1,5 +1,5 @@
 (function() {
-  var Like, List, ObjectId, Schema, User, UserSchema, db, mongoose;
+  var Like, List, ObjectId, Schema, UserSchema, db, mongoose;
   mongoose = require('mongoose');
   db = mongoose.connect('mongodb://localhost/booklist');
   Schema = mongoose.Schema;
@@ -46,10 +46,9 @@
       type: Number,
       "default": 1
     },
-    /* Can't seem to get these working in .coffee */
     lists: [List],
     likes: [Like]
   });
   mongoose.model('User', UserSchema);
-  User = mongoose.model('User');
+  module.exports = db.model('User');
 }).call(this);

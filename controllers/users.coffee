@@ -24,5 +24,5 @@ exports.Users = class Users
       if err
         console.log 'Error Saving: ' + err
       else
-        console.log 'Saved: ' + User
+        console.log 'Saved: ' + user
     

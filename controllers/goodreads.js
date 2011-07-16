@@ -91,6 +91,7 @@
         req.session.goodreads_auth = 1;
         console.log(req.session.goodreads_name + 'signed in with user ID: ' + req.session.goodreads_id + '\n');
         res.redirect('/');
+        console.log(req.session.goodreads_id);
         if (req.session.goodreads_id !== null) {
           Users = new users.Users;
           Users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback);

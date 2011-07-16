@@ -24,10 +24,9 @@ UserSchema = new Schema {
   name : { type: String, required: true },
   goodreadsID : { type: String, required: true },
   active : { type: Number, default: 1 },
-  ### Can't seem to get these working in .coffee ###
   lists : [ List ],  # A list contains n books
   likes : [ Like ]
 }
 
 mongoose.model 'User', UserSchema
-User = mongoose.model 'User'
+module.exports = db.model 'User' 

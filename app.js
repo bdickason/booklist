@@ -1,10 +1,11 @@
 (function() {
-  var Goodreads, RedisStore, Users, app, cfg, express, http, oauth, sys;
+  var Goodreads, RedisStore, Users, app, cfg, express, http, mongoose, oauth, sys;
   http = require('http');
   express = require('express');
   oauth = require('oauth');
   RedisStore = (require('connect-redis'))(express);
   sys = require('sys');
+  mongoose = require('mongoose');
   cfg = require('./config/config.js');
   app = express.createServer();
   app.configure(function() {
