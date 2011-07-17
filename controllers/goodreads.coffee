@@ -101,13 +101,12 @@ exports.Goodreads = class Goodreads
       req.session.goodreads_id = result.user['@'].id
       req.session.goodreads_auth = 1
 
-      console.log req.session.goodreads_name + 'signed in with user ID: ' + req.session.goodreads_id + '\n'
+      console.log req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreads_id + '\n'
       res.redirect '/'
       
       if req.session.goodreads_id != null
         users = new Users
         users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback)
-        console.log 'finished saving to the db'
       
   ### API: 'GET' ###
   getRequest: (callback) ->

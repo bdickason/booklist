@@ -37,7 +37,7 @@ app.get '/', (req, res) ->
   if req.session.goodreads_auth == 1
     # User is authenticated
     
-    # Get my shelevs
+    # Get my shelves
     gr = new Goodreads
     gr.getShelves req.session.goodreads_id, (json) ->
       if json
