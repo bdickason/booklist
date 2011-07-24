@@ -6,7 +6,7 @@ goodreads_client = (require 'goodreads').client
 redis = require 'redis'
 sys = require 'sys'
 cfg = require '../config/config.js' # contains API keys, etc.
-Users = (require './users.js').Users
+Users = (require './user.js').User
 
 exports.Goodreads = class Goodreads
   
@@ -83,16 +83,16 @@ exports.Goodreads = class Goodreads
     gr = new goodreads_client @options    
     
     gr.processCallback req.session.goodreads_authToken, req.session.goodreads_authSecret, req.params.authorize, (callback) ->
-  
+    
       req.session.goodreads_name = callback.username
-      req.session.goodreads_id = callback.userid
+      req.session.goodreadsID = callback.userid
       req.session.goodreads_auth = 1
 
-      console.log req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreads_id + '\n'
+      console.log req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreadsID + '\n'
 
       res.redirect '/'
       
-      if req.session.goodreads_id != null
+      if req.session.goodreadsID != null
         console.log 'Adding user: ' + req.session.goodreads_name
         users = new Users
-        users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback)
+        users.addUser(req.session.goodreadsID, req.session.goodreads_name, callback)

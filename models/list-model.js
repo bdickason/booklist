@@ -1,9 +1,14 @@
 (function() {
+<<<<<<< HEAD
   var Book, List, Lists, ObjectId, Schema, db, mongoose;
+=======
+  var ListSchema, ObjectId, Schema, db, mongoose;
+>>>>>>> lists
   mongoose = require('mongoose');
   db = mongoose.connect('mongodb://localhost/booklist');
   Schema = mongoose.Schema;
   ObjectId = Schema.ObjectId;
+<<<<<<< HEAD
   Book = new Schema({
     uid: {
       type: String,
@@ -15,15 +20,29 @@
     uid: {
       type: String,
       required: true,
+=======
+  ListSchema = new Schema({
+    uid: {
+      type: String,
+>>>>>>> lists
       unique: true
     },
     name: {
       type: String,
+<<<<<<< HEAD
       required: true
     },
     userId: {
       type: String,
       required: true
+=======
+      unique: true,
+      required: true,
+      dropDups: true
+    },
+    userId: {
+      type: String
+>>>>>>> lists
     },
     active: {
       type: Number,
@@ -33,6 +52,7 @@
       type: Number,
       "default": 0
     },
+<<<<<<< HEAD
     books: [Book]
   });
   mongoose.model('List', List);
@@ -64,4 +84,14 @@
     };
     return Lists;
   })();
+=======
+    books: [
+      {
+        type: String
+      }
+    ]
+  });
+  mongoose.model('List', ListSchema);
+  module.exports = db.model('List');
+>>>>>>> lists
 }).call(this);

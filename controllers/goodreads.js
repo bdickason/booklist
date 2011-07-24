@@ -6,7 +6,7 @@
   redis = require('redis');
   sys = require('sys');
   cfg = require('../config/config.js');
-  Users = (require('./users.js')).Users;
+  Users = (require('./user.js')).User;
   exports.Goodreads = Goodreads = (function() {
     /* CONFIG */    var redis_client;
     function Goodreads() {

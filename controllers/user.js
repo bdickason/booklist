@@ -2,18 +2,18 @@
   var User, Users, db, mongoose;
   mongoose = require('mongoose');
   db = mongoose.connect('mongodb://localhost/booklist');
-  User = require('../models/user-model.js');
-  exports.Users = Users = (function() {
-    function Users() {}
-    Users.prototype.getUsers = function(callback) {
-      return User.find({}, function(err, users) {
+  Users = require('../models/user-model.js');
+  exports.User = User = (function() {
+    function User() {}
+    User.prototype.findAll = function(callback) {
+      return Users.find({}, function(err, users) {
         if (!err) {
           return callback(users);
         }
       });
     };
-    Users.prototype.findById = function(id, callback) {
-      return User.find({
+    User.prototype.findById = function(id, callback) {
+      return Users.find({
         'goodreadsID': id
       }, function(err, user) {
         if (!err) {
@@ -21,9 +21,9 @@
         }
       });
     };
-    Users.prototype.addUser = function(goodreadsID, name, callback) {
+    User.prototype.addUser = function(goodreadsID, name, callback) {
       var user;
-      user = new User({
+      user = new Users({
         'goodreadsID': goodreadsID,
         'name': name
       });
@@ -35,6 +35,6 @@
         }
       });
     };
-    return Users;
+    return User;
   })();
 }).call(this);
