@@ -1,8 +1,7 @@
 (function() {
-  var Goodreads, RedisStore, Users, app, cfg, express, http, mongoose, oauth, sys;
+  var Goodreads, RedisStore, Users, app, cfg, express, http, mongoose, sys;
   http = require('http');
   express = require('express');
-  oauth = require('oauth');
   RedisStore = (require('connect-redis'))(express);
   sys = require('sys');
   mongoose = require('mongoose');
@@ -75,13 +74,13 @@
     var callback, gr;
     callback = '';
     gr = new Goodreads;
-    return gr.requestToken(callback, req, res);
+    return gr.requestToken(req, res, function(callback) {});
   });
   app.get('/goodreads/callback', function(req, res) {
     var callback, gr;
     callback = '';
     gr = new Goodreads;
-    return gr.callback(callback, req, res);
+    return gr.callback(req, res, callback);
   });
   app.get('/friends', function(req, res) {
     var callback, gr;
@@ -94,7 +93,7 @@
   app.get('/goodreads/list/:listName', function(req, res) {
     var gr;
     gr = new Goodreads;
-    return gr.getSingleList(req.session.goodreads_id, req.params.listName, function(json) {
+    return gr.getSingleShelf(req.session.goodreads_id, req.params.listName, function(json) {
       if (json) {
         return res.render('list/list-partial', {
           layout: false,

@@ -1,6 +1,5 @@
 http = require 'http'
 express = require 'express'
-oauth = require 'oauth'
 RedisStore = (require 'connect-redis')(express)
 sys = require 'sys'
 mongoose = require 'mongoose'
@@ -67,14 +66,16 @@ app.get '/users/:id', (req, res) ->
 app.get '/goodreads/connect', (req, res) ->
   callback = ''
   gr = new Goodreads
-  gr.requestToken callback, req, res
+  gr.requestToken req, res, (callback) ->
+  # Redirects to Goodreads Callback URL
+    
   
 # Handle goodreads callback  
 app.get '/goodreads/callback', (req, res) ->
   callback = ''
   gr = new Goodreads
-  gr.callback callback, req, res
-  # Redirect back to '/' when done
+  gr.callback req, res, callback
+  # Redirects back to '/' when done
 
 # Get logged in user's friends
 app.get '/friends', (req, res) ->
@@ -86,11 +87,10 @@ app.get '/friends', (req, res) ->
 # Get a specific list
 app.get '/goodreads/list/:listName', (req, res) ->
   gr = new Goodreads
-  gr.getSingleList req.session.goodreads_id, req.params.listName, (json) ->
+  gr.getSingleShelf req.session.goodreads_id, req.params.listName, (json) ->
     if json
       # Received valid return from Goodreads
       res.render 'list/list-partial', { layout: false, json: json } # Ajax
-      # res.render 'list/list', { json: json } # Render full list
 
 app.get '/logout', (req, res) ->
   console.log '--- LOGOUT ---'
