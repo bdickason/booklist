@@ -112,6 +112,8 @@ exports.Goodreads = class Goodreads
       req.session.goodreads_name = callback.username
       req.session.goodreadsID = callback.userid
       req.session.goodreads_auth = 1
+      req.session.goodreads_accessToken = callback.accessToken
+      req.session.goodreads_accessTokenSecret = callback.accessTokenSecret
 
       console.log req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreadsID + '\n'
 
