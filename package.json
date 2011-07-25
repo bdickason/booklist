@@ -10,6 +10,7 @@
 		"redis": ">=0.6.4",
 		"hiredis": ">=0.1.12",
 		"jasmine-node": ">=1.0.6",
-		"goodreads": ">=0.0.1"
+		"goodreads": ">=0.0.1",
+		"gzippo": ">=0.0.4"
 	}
 }

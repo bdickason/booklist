@@ -1,10 +1,11 @@
 (function() {
-  var Goodreads, RedisStore, Users, app, cfg, express, http, mongoose, sys;
+  var Goodreads, RedisStore, Users, app, cfg, express, gzippo, http, mongoose, sys;
   http = require('http');
   express = require('express');
   RedisStore = (require('connect-redis'))(express);
   sys = require('sys');
   mongoose = require('mongoose');
+  gzippo = require('gzippo');
   cfg = require('./config/config.js');
   app = express.createServer();
   app.configure(function() {
@@ -19,7 +20,7 @@
       store: new RedisStore
     }));
     app.use(app.router);
-    return app.use(express.static(__dirname + '/public'));
+    return app.use(gzippo.staticGzip(__dirname + '/public'));
   });
   mongoose.connection.on('open', function() {
     return console.log('Mongo is connected!');
@@ -32,35 +33,13 @@
   /* Initialize controllers */
   Goodreads = (require('./controllers/goodreads.js')).Goodreads;
   Users = (require('./controllers/user.js')).User;
-  Lists = (require('./controllers/list.js')).List;
   /* Start Route Handling */
   app.get('/', function(req, res) {
     var gr;
     if (req.session.goodreads_auth === 1) {
       gr = new Goodreads;
       return gr.getShelves(req.session.goodreadsID, function(json) {
-        var user;
         if (json) {
-          user = new Users;
-          user.findById(req.session.goodreadsID, function(currentUser) {
-            var shelf, _i, _len, _ref, _results;
-            _ref = json.shelves.user_shelf;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              shelf = _ref[_i];
-              user = new Users;
-              currentUser[0].lists.push({
-                name: shelf.name,
-                userId: req.session.goodreadsID
-              });
-              _results.push(currentUser[0].save(function(err) {
-                if (err) {
-                  return console.log(err);
-                }
-              }));
-            }
-            return _results;
-          });
           return res.render('index.jade', {
             json: json
           });
@@ -90,25 +69,19 @@
       });
     });
   });
-  app.get('/lists', function(req, res) {
-    var callback, list;
-    callback = '';
-    list = new Lists;
-    return list.findAll(function(json) {
-      console.log(json);
-      return res.render('lists', {
-        json: json
-      });
-    });
-  });
+  /*
+  # List All Lists
+  app.get '/lists', (req, res) ->
+    gr.getSingleShelf req.session.goodreadsID, req.params.id, (json) ->
+      res.render 'lists', { json: json }
+  */
   app.get('/lists/:id', function(req, res) {
-    var callback, list;
-    callback = '';
-    list = new Lists;
-    return list.findById(req.params.id, function(json) {
-      console.log(json);
+    var gr;
+    gr = new Goodreads;
+    return gr.getSingleShelf(req.session.goodreadsID, req.params.id, function(json) {
       return res.render('lists/list-partial', {
-        json: json
+        json: json,
+        layout: false
       });
     });
   });
@@ -135,7 +108,7 @@
   app.get('/goodreads/list/:listName', function(req, res) {
     var gr;
     gr = new Goodreads;
-    return gr.getSingleList(req.session.goodreadsID, req.params.listName, function(json) {
+    return gr.getSingleShelf(req.session.goodreadsID, req.params.listName, function(json) {
       if (json) {
         return res.render('lists/list-partial', {
           layout: false,

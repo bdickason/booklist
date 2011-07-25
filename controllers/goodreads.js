@@ -22,22 +22,46 @@
     });
     /* BOOKSHELVES */
     Goodreads.prototype.getShelves = function(userId, callback) {
-      var gr;
+      var cacheKey, gr;
       console.log('Getting shelves ' + userId);
       gr = new goodreads_client(this.options);
-      return gr.getShelves(userId, function(json) {
-        if (json) {
-          return callback(json);
+      cacheKey = 'getShelves/' + userId;
+      return redis_client.get(cacheKey, function(err, reply) {
+        if (err) {
+          return console.log('REDIS Error: ' + err);
+        } else {
+          if (reply) {
+            return callback(JSON.parse(reply));
+          } else {
+            return gr.getShelves(userId, function(json) {
+              if (json) {
+                redis_client.setex(cacheKey, cfg.REDIS_CACHE_TIME, JSON.stringify(json));
+                return callback(json);
+              }
+            });
+          }
         }
       });
     };
     Goodreads.prototype.getSingleShelf = function(userId, listId, callback) {
-      var gr;
+      var cacheKey, gr;
       console.log('Getting list: ' + listId);
       gr = new goodreads_client(this.options);
-      return gr.getSingleShelf(userId, listId, function(json) {
-        if (json) {
-          return callback(json);
+      cacheKey = 'getSingleShelf/' + userId + '/' + listId;
+      return redis_client.get(cacheKey, function(err, reply) {
+        if (err) {
+          return console.log('REDIS Error: ' + err);
+        } else {
+          if (reply) {
+            return callback(JSON.parse(reply));
+          } else {
+            return gr.getSingleShelf(userId, listId, function(json) {
+              if (json) {
+                redis_client.setex(cacheKey, cfg.REDIS_CACHE_TIME, JSON.stringify(json));
+                return callback(json);
+              }
+            });
+          }
         }
       });
     };
@@ -73,14 +97,14 @@
       return gr.processCallback(req.session.goodreads_authToken, req.session.goodreads_authSecret, req.params.authorize, function(callback) {
         var users;
         req.session.goodreads_name = callback.username;
-        req.session.goodreads_id = callback.userid;
+        req.session.goodreadsID = callback.userid;
         req.session.goodreads_auth = 1;
-        console.log(req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreads_id + '\n');
+        console.log(req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreadsID + '\n');
         res.redirect('/');
-        if (req.session.goodreads_id !== null) {
+        if (req.session.goodreadsID !== null) {
           console.log('Adding user: ' + req.session.goodreads_name);
           users = new Users;
-          return users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback);
+          return users.addUser(req.session.goodreadsID, req.session.goodreads_name, callback);
         }
       });
     };

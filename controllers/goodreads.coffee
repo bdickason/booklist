@@ -34,9 +34,21 @@ exports.Goodreads = class Goodreads
     
     gr = new goodreads_client @options
     
-    gr.getShelves userId, (json) ->
-      if json
-        callback json
+    # Create unique key for redis caching
+    cacheKey = 'getShelves/' + userId
+    redis_client.get cacheKey, (err, reply) ->
+      if err
+        console.log 'REDIS Error: ' + err
+      else
+        if reply
+          callback JSON.parse reply
+        else
+          # Crap! Go grab it!   
+          gr.getShelves userId, (json) ->
+            if json
+              # cache the output
+              redis_client.setex cacheKey, cfg.REDIS_CACHE_TIME, JSON.stringify(json)
+              callback json
   
   # Get a specific list by ID
   getSingleShelf: (userId, listId, callback) ->
@@ -45,9 +57,22 @@ exports.Goodreads = class Goodreads
 
     gr = new goodreads_client @options
     
-    gr.getSingleShelf userId, listId, (json) ->
-      if json
-        callback json
+    # Create unique key for redis caching
+    cacheKey = 'getSingleShelf/' + userId + '/' + listId
+    
+    redis_client.get cacheKey, (err, reply) ->
+      if err
+        console.log 'REDIS Error: ' + err
+      else
+        if reply
+          callback JSON.parse reply
+        else
+          # Crap! Go grab it!
+          gr.getSingleShelf userId, listId, (json) ->
+            if json
+              # cache the output
+              redis_client.setex cacheKey, cfg.REDIS_CACHE_TIME, JSON.stringify(json)
+              callback json
   
   ### FRIENDS ###
   getFriends: (userId, req, res, callback) ->

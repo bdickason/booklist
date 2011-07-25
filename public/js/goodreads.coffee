@@ -15,7 +15,7 @@ $ ->
   $('.shelfItems').each (index) ->
     console.log this
     id = $(this).attr('id')
-    $(this).load('/goodreads/list/' + id)
+    $(this).load('/lists/' + id)
     
     # $().get '/goodreads/list' + id, (data) ->
     #  $(this).closest('li').html(data)

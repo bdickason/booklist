@@ -13,7 +13,7 @@
       var id;
       console.log(this);
       id = $(this).attr('id');
-      return $(this).load('/goodreads/list/' + id);
+      return $(this).load('/lists/' + id);
     });
     /* PAGING */
     /*
