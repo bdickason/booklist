@@ -124,5 +124,5 @@
     req.session.destroy();
     return res.redirect('/');
   });
-  app.listen(3000);
+  app.listen(process.env.PORT || 3000);
 }).call(this);

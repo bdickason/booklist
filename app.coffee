@@ -112,4 +112,4 @@ app.get '/logout', (req, res) ->
   req.session.destroy()
   res.redirect '/'
 
-app.listen 3000
+app.listen process.env.PORT or 3000
