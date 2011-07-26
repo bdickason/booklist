@@ -6,7 +6,7 @@
   sys = require('sys');
   mongoose = require('mongoose');
   gzippo = require('gzippo');
-  cfg = require('./config/config.js');
+  cfg = require('../config/config.js');
   app = express.createServer();
   app.configure(function() {
     app.set('views', __dirname + '/views');
