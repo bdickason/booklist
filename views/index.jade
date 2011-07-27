@@ -9,6 +9,5 @@ article
             h4
               a(href='/lists/#{shelf.name}') #{shelf.name} 
               #{shelf.book_count['#']}
-            | <
+            a(href='#', onclick='changePosition();') < >
             ul.shelfItems(id='#{shelf.name}')
-            | >

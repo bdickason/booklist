@@ -17,24 +17,26 @@ $ ->
   $('.shelfItems').each (index) ->
     console.log 'test'
     id = $(this).attr('id')
+    
     $(this).load '/lists/' + id, (response, status, xhr) ->
-      # console.log $(this).filter('.shelfItems')
+      console.log $(this)
       if status != 'error'
+        book_sliders {'id': }
+        
         ### PAGING ###
-        console.log $('#' + id + ' .shelfItems')
         currentPosition = 0
         bookWidth = 150
         changePosition = () ->
-          if currentPosition == (numberOfBooks - 1)
+          if currentPosition > (numberOfBooks - 1)
             currentPosition = 0
           else
             currentPosition++
+          # console.log id + ' Position: ' + @currentPosition + 'Number: ' + @numberOfBooks
           moveBook()
 
         $('#bookHolder_' + id).css 'width', bookWidth * numberOfBooks
 
         moveBook = ()  ->
-          tmp = bookWidth*(-currentPosition)
           $('#bookHolder_' + id).animate { 'marginLeft': bookWidth*(-currentPosition) }
           
         books = $('.book')
@@ -43,9 +45,6 @@ $ ->
         books.css { 'float': 'left' }
         speed = 3000
         slideShowInterval = setInterval(changePosition, speed);
-
-        
-        console.log $('bookHolder')
         
 
   

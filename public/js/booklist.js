@@ -15,13 +15,13 @@
       id = $(this).attr('id');
       return $(this).load('/lists/' + id, function(response, status, xhr) {
         var bookWidth, books, changePosition, currentPosition, moveBook, numberOfBooks, slideShowInterval, speed;
+        console.log($(this));
         if (status !== 'error') {
           /* PAGING */
-          console.log($('#' + id + ' .shelfItems'));
           currentPosition = 0;
           bookWidth = 150;
           changePosition = function() {
-            if (currentPosition === (numberOfBooks - 1)) {
+            if (currentPosition > (numberOfBooks - 1)) {
               currentPosition = 0;
             } else {
               currentPosition++;
@@ -30,8 +30,6 @@
           };
           $('#bookHolder_' + id).css('width', bookWidth * numberOfBooks);
           moveBook = function() {
-            var tmp;
-            tmp = bookWidth * (-currentPosition);
             return $('#bookHolder_' + id).animate({
               'marginLeft': bookWidth * (-currentPosition)
             });
@@ -43,8 +41,7 @@
             'float': 'left'
           });
           speed = 3000;
-          slideShowInterval = setInterval(changePosition, speed);
-          return console.log($('bookHolder'));
+          return slideShowInterval = setInterval(changePosition, speed);
         }
       });
     });
