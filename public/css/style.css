@@ -522,7 +522,7 @@ table {
     height: 220px;
     width: 100%;
     margin-bottom: 15px;
-    overflow: auto;
+    overflow: hidden;
   }
   
   h4 a {
@@ -538,6 +538,7 @@ table {
   
   .book {
     display: inline-block;
+    position: relative;
   }
   
   .book img {
