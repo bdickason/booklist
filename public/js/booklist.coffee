@@ -10,42 +10,61 @@ $ ->
   
   jQuery.ajaxSetup {async:true}
   
+  shelves = []
   
   ### Lists ###
-  
+
+  shelves = []  
+
+  # onClick event
+  $('#left').bind 'click', ->
+    console.log = $(this).closest('li').children('.shelfItems')
+
   # Grab list partial
   $('.shelfItems').each (index) ->
-    console.log 'test'
     id = $(this).attr('id')
-    
+  
     $(this).load '/lists/' + id, (response, status, xhr) ->
       console.log $(this)
       if status != 'error'
-        book_sliders {'id': }
         
-        ### PAGING ###
-        currentPosition = 0
-        bookWidth = 150
-        changePosition = () ->
-          if currentPosition > (numberOfBooks - 1)
-            currentPosition = 0
-          else
-            currentPosition++
-          # console.log id + ' Position: ' + @currentPosition + 'Number: ' + @numberOfBooks
-          moveBook()
-
-        $('#bookHolder_' + id).css 'width', bookWidth * numberOfBooks
-
-        moveBook = ()  ->
-          $('#bookHolder_' + id).animate { 'marginLeft': bookWidth*(-currentPosition) }
-          
-        books = $('.book')
-        numberOfBooks = books.length
-        $('#' + id + ' .shelfItems').wrapInner '<div id="bookHolder_' + id + '"></div>'
-        books.css { 'float': 'left' }
-        speed = 3000
-        slideShowInterval = setInterval(changePosition, speed);
+        # Load a bunch 'o shelves
+        shelves.push new Shelf { 'id': id, 'bookWidth': 150 }
         
+        # hack to keep track of which array is which (avoids a for each)
+        $(this).attr 'data-index', shelves.length 
+      
+#        speed = 3000
+#        slideShowInterval = setInterval(changePosition, speed);    
+    
+  ### Shelf - A slide-able shelf object :) ###
+  class Shelf
+    constructor: (config) ->
+      @currentPosition = 0  # Will always start in position 0
+      @id = config.id or ''
+      @bookWidth = config.bookWidth or 150
+      @books = $('#' + @id + ' .shelfItems').find '.book'
+      @numberOfBooks = @books.length
+      
+      @books.css { 'float': 'left' }
+      $('#bookHolder_' + @id).css 'width', @bookWidth * @numberOfBooks
+      $('#' + @id + ' .shelfItems').wrapInner '<div id="bookHolder_' + @id + '"></div>'
+
+    @changePosition = () ->
+      if @currentPosition > (@numberOfBooks - 1)
+        @currentPosition = 0
+      else
+        @currentPosition++
+      # console.log id + ' Position: ' + @currentPosition + 'Number: ' + @numberOfBooks
+      @moveBook()
+
+    moveBook = ()  ->
+      $('#bookHolder_' + id).animate { 'marginLeft': @bookWidth*(-@currentPosition) }
+    
+    
+      
+    
+      
 
   
         

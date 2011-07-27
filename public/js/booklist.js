@@ -1,6 +1,7 @@
 (function() {
   $(function() {
-    /* General Site Stuffs */    $('.loadingDiv').hide().ajaxStart(function() {
+    /* General Site Stuffs */    var Shelf, shelves;
+    $('.loadingDiv').hide().ajaxStart(function() {
       return $(this).show();
     }).ajaxStop(function() {
       return $(this).hide();
@@ -8,42 +9,55 @@
     jQuery.ajaxSetup({
       async: true
     });
+    shelves = [];
     /* Lists */
-    return $('.shelfItems').each(function(index) {
+    shelves = [];
+    $('#left').bind('click', function() {
+      return console.log = $(this).closest('li').children('.shelfItems');
+    });
+    $('.shelfItems').each(function(index) {
       var id;
-      console.log('test');
       id = $(this).attr('id');
       return $(this).load('/lists/' + id, function(response, status, xhr) {
-        var bookWidth, books, changePosition, currentPosition, moveBook, numberOfBooks, slideShowInterval, speed;
         console.log($(this));
         if (status !== 'error') {
-          /* PAGING */
-          currentPosition = 0;
-          bookWidth = 150;
-          changePosition = function() {
-            if (currentPosition > (numberOfBooks - 1)) {
-              currentPosition = 0;
-            } else {
-              currentPosition++;
-            }
-            return moveBook();
-          };
-          $('#bookHolder_' + id).css('width', bookWidth * numberOfBooks);
-          moveBook = function() {
-            return $('#bookHolder_' + id).animate({
-              'marginLeft': bookWidth * (-currentPosition)
-            });
-          };
-          books = $('.book');
-          numberOfBooks = books.length;
-          $('#' + id + ' .shelfItems').wrapInner('<div id="bookHolder_' + id + '"></div>');
-          books.css({
-            'float': 'left'
-          });
-          speed = 3000;
-          return slideShowInterval = setInterval(changePosition, speed);
+          shelves.push(new Shelf({
+            'id': id,
+            'bookWidth': 150
+          }));
+          return $(this).attr('data-index', shelves.length);
         }
       });
     });
+    /* Shelf - A slide-able shelf object :) */
+    return Shelf = (function() {
+      var moveBook;
+      function Shelf(config) {
+        this.currentPosition = 0;
+        this.id = config.id || '';
+        this.bookWidth = config.bookWidth || 150;
+        this.books = $('#' + this.id + ' .shelfItems').find('.book');
+        this.numberOfBooks = this.books.length;
+        this.books.css({
+          'float': 'left'
+        });
+        $('#bookHolder_' + this.id).css('width', this.bookWidth * this.numberOfBooks);
+        $('#' + this.id + ' .shelfItems').wrapInner('<div id="bookHolder_' + this.id + '"></div>');
+      }
+      Shelf.changePosition = function() {
+        if (this.currentPosition > (this.numberOfBooks - 1)) {
+          this.currentPosition = 0;
+        } else {
+          this.currentPosition++;
+        }
+        return this.moveBook();
+      };
+      moveBook = function() {
+        return $('#bookHolder_' + id).animate({
+          'marginLeft': this.bookWidth * (-this.currentPosition)
+        });
+      };
+      return Shelf;
+    })();
   });
 }).call(this);
