@@ -4,7 +4,7 @@ RedisStore = (require 'connect-redis')(express)
 sys = require 'sys'
 mongoose = require 'mongoose'
 gzippo = require 'gzippo'
-cfg = require '../config/config.js'    # contains API keys, etc.
+cfg = require './config/config.js'    # contains API keys, etc.
 
 
 app = express.createServer()
