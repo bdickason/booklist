@@ -19,12 +19,12 @@ $ ->
   # Move the current shelf line left
   $('.leftArrow').bind 'click', ->
     currentShelf = shelves[($(this).closest('li').children('.shelfItems').attr 'data-index')-1]
-    currentShelf.changePosition()
+    currentShelf.changePosition('left')
 
   # Move the current shelf line right
   $('.rightArrow').bind 'click', ->
     currentShelf = shelves[($(this).closest('li').children('.shelfItems').attr 'data-index')-1]
-    currentShelf.changePosition()
+    currentShelf.changePosition('right')
 
 
   # Grab list partial
@@ -56,12 +56,19 @@ $ ->
       $('#bookHolder_' + @id).css 'width', @bookWidth * @numberOfBooks
       $('#' + @id + ' .shelfItems').wrapInner '<div id="bookHolder_' + @id + '"></div>'
 
-    changePosition: ->
-      if @currentPosition > (@numberOfBooks - 1)
-        @currentPosition = 0
-      else
-        @currentPosition++
-      # console.log id + ' Position: ' + @currentPosition + 'Number: ' + @numberOfBooks
+    changePosition: (direction) ->
+      switch direction
+        when 'left'
+          if @currentPosition == 0
+            @currentPosition = @numberOfBooks - 1
+          else
+            @currentPosition--
+        when 'right'          
+          if @currentPosition > (@numberOfBooks - 2)
+            @currentPosition = 0
+          else
+            @currentPosition++
+
       @moveBook()
 
     moveBook: ->
