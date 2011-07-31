@@ -474,7 +474,7 @@ table {
   
   a {
   color:#00F;
-  text-decoration:underline
+  text-decoration:none;
   }
 
   a:hover {
@@ -524,6 +524,8 @@ table {
     width: 100%;
     margin-bottom: 15px;
     overflow: hidden;
+    display: inline-block;
+    padding: 10px 0 0 0;
   }
   
   h4 a {
@@ -558,4 +560,35 @@ table {
     text-align: center;
     
   }
+  
+  @font-face {
+    font-family:'Pictos';
+    src:url("/fonts/pictos-web.eot");
+    src:local("☺"),
+    url("/fonts/pictos-web.woff") format("woff"),
+    url("/fonts/pictos-web.ttf") format("truetype"),
+    url("/fonts/pictos-web.svg#webfontIyfZbseF") format("svg");
+    font-weight:normal;
+    font-style:normal
+  }
+  
+  .arrows {
+    font-family: Pictos;
+    color: #00A;
+    font-size: 2.9em;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .leftArrow {
+    padding-right: 20px;
+  }
+  
+  .rightArrow {
+    padding-right: 20px;
+  }
 }
+/* ==================================================
+     Custom Fonts
+   ================================================== */
+

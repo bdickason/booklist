@@ -10,8 +10,6 @@ $ ->
   
   jQuery.ajaxSetup {async:true}
   
-  shelves = []
-  
   ### Lists ###
 
   shelves = []  
