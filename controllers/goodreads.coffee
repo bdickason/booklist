@@ -6,7 +6,7 @@ goodreads_client = (require 'goodreads').client
 redis = require 'redis'
 sys = require 'sys'
 cfg = require '../config/config.js' # contains API keys, etc.
-Users = (require './users.js').Users
+Users = (require './user.js').User
 
 exports.Goodreads = class Goodreads
   
@@ -34,9 +34,21 @@ exports.Goodreads = class Goodreads
     
     gr = new goodreads_client @options
     
-    gr.getShelves userId, (json) ->
-      if json
-        callback json
+    # Create unique key for redis caching
+    cacheKey = 'getShelves/' + userId
+    redis_client.get cacheKey, (err, reply) ->
+      if err
+        console.log 'REDIS Error: ' + err
+      else
+        if reply
+          callback JSON.parse reply
+        else
+          # Crap! Go grab it!   
+          gr.getShelves userId, (json) ->
+            if json
+              # cache the output
+              redis_client.setex cacheKey, cfg.REDIS_CACHE_TIME, JSON.stringify(json)
+              callback json
   
   # Get a specific list by ID
   getSingleShelf: (userId, listId, callback) ->
@@ -45,9 +57,22 @@ exports.Goodreads = class Goodreads
 
     gr = new goodreads_client @options
     
-    gr.getSingleShelf userId, listId, (json) ->
-      if json
-        callback json
+    # Create unique key for redis caching
+    cacheKey = 'getSingleShelf/' + userId + '/' + listId
+    
+    redis_client.get cacheKey, (err, reply) ->
+      if err
+        console.log 'REDIS Error: ' + err
+      else
+        if reply
+          callback JSON.parse reply
+        else
+          # Crap! Go grab it!
+          gr.getSingleShelf userId, listId, (json) ->
+            if json
+              # cache the output
+              redis_client.setex cacheKey, cfg.REDIS_CACHE_TIME, JSON.stringify(json)
+              callback json
   
   ### FRIENDS ###
   getFriends: (userId, req, res, callback) ->
@@ -83,16 +108,18 @@ exports.Goodreads = class Goodreads
     gr = new goodreads_client @options    
     
     gr.processCallback req.session.goodreads_authToken, req.session.goodreads_authSecret, req.params.authorize, (callback) ->
-  
+    
       req.session.goodreads_name = callback.username
-      req.session.goodreads_id = callback.userid
+      req.session.goodreadsID = callback.userid
       req.session.goodreads_auth = 1
+      req.session.goodreads_accessToken = callback.accessToken
+      req.session.goodreads_accessTokenSecret = callback.accessTokenSecret
 
-      console.log req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreads_id + '\n'
+      console.log req.session.goodreads_name + ' signed in with user ID: ' + req.session.goodreadsID + '\n'
 
       res.redirect '/'
       
-      if req.session.goodreads_id != null
+      if req.session.goodreadsID != null
         console.log 'Adding user: ' + req.session.goodreads_name
         users = new Users
-        users.addUser(req.session.goodreads_id, req.session.goodreads_name, callback)
+        users.addUser(req.session.goodreadsID, req.session.goodreads_name, callback)

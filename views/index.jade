@@ -1,12 +1,15 @@
 .subnav
-    h1 Your Lists
+  h1 Your Lists
 article
-  .infiniteCarousel
-    .wrapper
-      ul
-        - each shelf in json.shelves.user_shelf
-          li.shelf(id='#{shelf.name}')
-            h4
-              a(href='/goodreads/list/#{shelf.name}') #{shelf.name} 
-              #{shelf.book_count['#']}
-            .shelfItems(id='#{shelf.name}')
+  ul
+    - each shelf in json.shelves.user_shelf
+      li.shelf(id='#{shelf.name}')
+        h4
+          a(href='/lists/#{shelf.name}') #{shelf.name} 
+          #{shelf.book_count['#']}
+        .arrows
+          a.leftArrow [
+          a.rightArrow ]
+          a.heart k
+        ul.shelfItems(id='#{shelf.name}')
+        

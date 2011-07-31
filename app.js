@@ -1,10 +1,11 @@
 (function() {
-  var Goodreads, RedisStore, Users, app, cfg, express, http, mongoose, sys;
+  var Goodreads, RedisStore, Users, app, cfg, express, gzippo, http, mongoose, sys;
   http = require('http');
   express = require('express');
   RedisStore = (require('connect-redis'))(express);
   sys = require('sys');
   mongoose = require('mongoose');
+  gzippo = require('gzippo');
   cfg = require('./config/config.js');
   app = express.createServer();
   app.configure(function() {
@@ -19,7 +20,7 @@
       store: new RedisStore
     }));
     app.use(app.router);
-    return app.use(express.static(__dirname + '/public'));
+    return app.use(gzippo.staticGzip(__dirname + '/public'));
   });
   mongoose.connection.on('open', function() {
     return console.log('Mongo is connected!');
@@ -31,13 +32,13 @@
   });
   /* Initialize controllers */
   Goodreads = (require('./controllers/goodreads.js')).Goodreads;
-  Users = (require('./controllers/users.js')).Users;
+  Users = (require('./controllers/user.js')).User;
   /* Start Route Handling */
   app.get('/', function(req, res) {
     var gr;
     if (req.session.goodreads_auth === 1) {
       gr = new Goodreads;
-      return gr.getShelves(req.session.goodreads_id, function(json) {
+      return gr.getShelves(req.session.goodreadsID, function(json) {
         if (json) {
           return res.render('index.jade', {
             json: json
@@ -52,8 +53,7 @@
     var callback, user;
     callback = '';
     user = new Users;
-    return user.getUsers(function(json) {
-      console.log(json);
+    return user.findAll(function(json) {
       return res.render('users', {
         json: json
       });
@@ -64,9 +64,24 @@
     callback = '';
     user = new Users;
     return user.findById(req.params.id, function(json) {
-      console.log(json);
       return res.render('users/singleUser', {
         json: json
+      });
+    });
+  });
+  /*
+  # List All Lists
+  app.get '/lists', (req, res) ->
+    gr.getSingleShelf req.session.goodreadsID, req.params.id, (json) ->
+      res.render 'lists', { json: json }
+  */
+  app.get('/lists/:id', function(req, res) {
+    var gr;
+    gr = new Goodreads;
+    return gr.getSingleShelf(req.session.goodreadsID, req.params.id, function(json) {
+      return res.render('lists/list-partial', {
+        json: json,
+        layout: false
       });
     });
   });
@@ -86,16 +101,16 @@
     var callback, gr;
     callback = '';
     gr = new Goodreads;
-    return gr.getFriends(req.session.goodreads_id, req, res, function(json) {
+    return gr.getFriends(req.session.goodreadsID, req, res, function(json) {
       return res.send(json);
     });
   });
   app.get('/goodreads/list/:listName', function(req, res) {
     var gr;
     gr = new Goodreads;
-    return gr.getSingleShelf(req.session.goodreads_id, req.params.listName, function(json) {
+    return gr.getSingleShelf(req.session.goodreadsID, req.params.listName, function(json) {
       if (json) {
-        return res.render('list/list-partial', {
+        return res.render('lists/list-partial', {
           layout: false,
           json: json
         });
@@ -109,5 +124,5 @@
     req.session.destroy();
     return res.redirect('/');
   });
-  app.listen(3000);
+  app.listen(process.env.PORT || 3000);
 }).call(this);

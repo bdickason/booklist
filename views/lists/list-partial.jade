@@ -1,9 +1,9 @@
 - if (json.books.book.length)
   - each book in json.books.book
-    .book
+    li.book
       img(src='#{book.image_url}') 
       p #{book.title}
 - else
-   .book
+  li.book
      img(src='#{json.books.book.image_url}')
      p #{json.books.book.title}
