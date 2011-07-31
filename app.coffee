@@ -35,7 +35,9 @@ Users = (require './controllers/users.js').Users
 app.get '/', (req, res) ->
   if req.session.goodreads_auth == 1
     # User is authenticated
-    
+    if not req.session.goodreads_id
+      console.log "Can't read ID from session. Logging user out."
+      res.redirect '/logout'
     # Get my shelves
     gr = new Goodreads
     gr.getShelves req.session.goodreads_id, (json) ->
