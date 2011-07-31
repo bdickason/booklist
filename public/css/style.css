@@ -479,7 +479,8 @@ table {
 
   a:hover {
   color:#00A;
-  text-decoration:none
+  text-decoration:none;
+  cursor: pointer
   }
 
   a:visited {

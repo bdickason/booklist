@@ -12,14 +12,20 @@
     shelves = [];
     /* Lists */
     shelves = [];
-    $('#left').bind('click', function() {
-      return console.log = $(this).closest('li').children('.shelfItems');
+    $('.leftArrow').bind('click', function() {
+      var currentShelf;
+      currentShelf = shelves[($(this).closest('li').children('.shelfItems').attr('data-index')) - 1];
+      return currentShelf.changePosition();
+    });
+    $('.rightArrow').bind('click', function() {
+      var currentShelf;
+      currentShelf = shelves[($(this).closest('li').children('.shelfItems').attr('data-index')) - 1];
+      return currentShelf.changePosition();
     });
     $('.shelfItems').each(function(index) {
       var id;
       id = $(this).attr('id');
       return $(this).load('/lists/' + id, function(response, status, xhr) {
-        console.log($(this));
         if (status !== 'error') {
           shelves.push(new Shelf({
             'id': id,
@@ -31,7 +37,6 @@
     });
     /* Shelf - A slide-able shelf object :) */
     return Shelf = (function() {
-      var moveBook;
       function Shelf(config) {
         this.currentPosition = 0;
         this.id = config.id || '';
@@ -44,7 +49,7 @@
         $('#bookHolder_' + this.id).css('width', this.bookWidth * this.numberOfBooks);
         $('#' + this.id + ' .shelfItems').wrapInner('<div id="bookHolder_' + this.id + '"></div>');
       }
-      Shelf.changePosition = function() {
+      Shelf.prototype.changePosition = function() {
         if (this.currentPosition > (this.numberOfBooks - 1)) {
           this.currentPosition = 0;
         } else {
@@ -52,8 +57,8 @@
         }
         return this.moveBook();
       };
-      moveBook = function() {
-        return $('#bookHolder_' + id).animate({
+      Shelf.prototype.moveBook = function() {
+        return $('#bookHolder_' + this.id).animate({
           'marginLeft': this.bookWidth * (-this.currentPosition)
         });
       };

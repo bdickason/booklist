@@ -16,16 +16,22 @@ $ ->
 
   shelves = []  
 
-  # onClick event
-  $('#left').bind 'click', ->
-    console.log = $(this).closest('li').children('.shelfItems')
+  # Move the current shelf line left
+  $('.leftArrow').bind 'click', ->
+    currentShelf = shelves[($(this).closest('li').children('.shelfItems').attr 'data-index')-1]
+    currentShelf.changePosition()
+
+  # Move the current shelf line right
+  $('.rightArrow').bind 'click', ->
+    currentShelf = shelves[($(this).closest('li').children('.shelfItems').attr 'data-index')-1]
+    currentShelf.changePosition()
+
 
   # Grab list partial
   $('.shelfItems').each (index) ->
     id = $(this).attr('id')
   
     $(this).load '/lists/' + id, (response, status, xhr) ->
-      console.log $(this)
       if status != 'error'
         
         # Load a bunch 'o shelves
@@ -50,7 +56,7 @@ $ ->
       $('#bookHolder_' + @id).css 'width', @bookWidth * @numberOfBooks
       $('#' + @id + ' .shelfItems').wrapInner '<div id="bookHolder_' + @id + '"></div>'
 
-    @changePosition = () ->
+    changePosition: ->
       if @currentPosition > (@numberOfBooks - 1)
         @currentPosition = 0
       else
@@ -58,8 +64,8 @@ $ ->
       # console.log id + ' Position: ' + @currentPosition + 'Number: ' + @numberOfBooks
       @moveBook()
 
-    moveBook = ()  ->
-      $('#bookHolder_' + id).animate { 'marginLeft': @bookWidth*(-@currentPosition) }
+    moveBook: ->
+      $('#bookHolder_' + @id).animate { 'marginLeft': @bookWidth*(-@currentPosition) }
     
     
       
